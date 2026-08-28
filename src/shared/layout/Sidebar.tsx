@@ -1,0 +1,622 @@
+import { useMemo } from 'react'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
+import {
+  Bell,
+  CaretLeft,
+  CaretRight,
+  MagnifyingGlass,
+  CaretUpDown,
+  Plus,
+  Question,
+  Gear,
+  SignOut,
+  UserCircle,
+} from '@phosphor-icons/react'
+import { cn } from '@/shared/lib/cn'
+import { ModuleIcon } from '@/shared/icons/moduleIcons'
+import { useNavLabels, type NavLabels } from '@/shared/nav/moduleLabels'
+import { useTenant } from '@/features/tenant/TenantProvider'
+import { useUiStore } from '@/shared/store/ui.store'
+import { useSignOut } from '@/features/auth/useSignOut'
+import { Avatar, Badge, Menu, Tooltip } from '@/shared/ui'
+import type { NavigationItem } from '@/shared/types/navigation.types'
+
+/**
+ * The rail.
+ *
+ * ── It is server-driven, and that is the point ─────────────────────────────
+ *
+ * Nothing here is a hard-coded list. `GET /portal/context` resolves which
+ * modules this person holds in this institution, groups them into sections and
+ * returns the tree; this file arranges it. So an institution that switches off
+ * Transport loses the Transport item with no deploy, and an administrator, a
+ * teacher, a student and a guardian get four different rails from one build.
+ *
+ * Rendering an item is not granting it. Every route behind every item re-runs
+ * its own check server-side.
+ *
+ * ── Sprig's proportions ────────────────────────────────────────────────────
+ *
+ * #f9f9f9 ground against the white canvas, a hairline between them, 13px
+ * labels, and a #eeeeee rounded fill on the active row — no left border, no
+ * accent bar, no colour. The one saturated thing in the whole rail is the
+ * yellow CTA above the footer, which is a FILL with dark ink on it.
+ *
+ * ── How the groups are headed ──────────────────────────────────────────────
+ *
+ * Sprig's own flat product rail carries no headings at all — five items do not
+ * need them. Its SETTINGS rail does, and that is the pattern this copies,
+ * because an institution owner's tree is nineteen sections and sixty modules:
+ * a sentence-case heading in bold, near-black ink at the SAME size as the
+ * items, with the items themselves in mid-grey beneath it.
+ *
+ * Not a tiny uppercase grey overline. That is the house style of a different
+ * product, it makes the heading quieter than the thing it heads, and it was
+ * the single most obvious tell that this was not Sprig.
+ *
+ * ── Where the collapse control lives ───────────────────────────────────────
+ *
+ * On the hairline itself, straddling the rail's right edge — see `RailToggle`.
+ *
+ * ── The words are not the API's words ──────────────────────────────────────
+ *
+ * The tree arrives labelled with the module registry's catalogue names, which
+ * are written for a catalogue: "Classes, Cohorts and Learning Groups". The rail
+ * renders through `useNavLabels`, which gives each destination a NAME at rail
+ * width and takes that name from the institution's own vocabulary — so one row
+ * says Classes to a school, Cohorts to a university and Cohorts to a training
+ * provider, from one build.
+ */
+export function Sidebar() {
+  const { access, tenant, account, membership } = useTenant()
+  const collapsed = useUiStore((s) => s.railCollapsed)
+  const toggleRail = useUiStore((s) => s.toggleRail)
+  const setMobileNavOpen = useUiStore((s) => s.setMobileNavOpen)
+  const signOut = useSignOut()
+  const navLabel = useNavLabels()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const session = access?.calendar?.session
+  const period = access?.calendar?.period
+  const sections = access?.navigation.sections ?? []
+  const quickActions = access?.navigation.quick_actions ?? []
+
+  /* `access` arrives on a second request after `/auth/me`, so there is a real
+   * moment where the person is signed in and the rail has nothing to draw. An
+   * empty rail during it reads as "this account has no modules", which is a
+   * different and alarming statement. */
+  const navLoading = access === null
+
+  /* Longest-prefix match, so `/students/01a0…` keeps "Students" lit rather
+   * than lighting nothing. An equality test loses the active state the moment
+   * anybody opens a detail screen. */
+  const activeKey = useMemo(() => {
+    const path = location.pathname
+    let best: { key: string; length: number } | null = null
+
+    for (const section of sections) {
+      for (const item of section.children) {
+        if (!item.route) continue
+        const href = `/${item.route}`
+        if (path === href || path.startsWith(`${href}/`)) {
+          if (!best || href.length > best.length) best = { key: item.key, length: href.length }
+        }
+      }
+    }
+    return best?.key ?? null
+  }, [location.pathname, sections])
+
+  return (
+    <nav
+      aria-label="Main"
+      className={cn(
+        'relative flex h-dvh shrink-0 flex-col border-r border-gray-200 bg-rail transition-[width] duration-200',
+        collapsed ? 'w-rail-collapsed' : 'w-rail',
+      )}
+    >
+      {/* ── Wordmark ──────────────────────────────────────────────────── */}
+      <div
+        className={cn(
+          'flex h-12 shrink-0 items-center gap-2',
+          collapsed ? 'justify-center px-2' : 'pl-3 pr-4',
+        )}
+      >
+        <Link
+          to="/dashboard"
+          className="flex min-w-0 items-center gap-2"
+          onClick={() => setMobileNavOpen(false)}
+          /* The wordmark is a way home, not a nav item. Without this, TanStack
+           * stamps `aria-current="page"` on it whenever /dashboard is open and
+           * two elements claim to be the current page — the Dashboard row in
+           * the tree below is the one that means it. */
+          activeProps={{ 'aria-current': undefined }}
+        >
+          <BrandMark />
+          {!collapsed && (
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold leading-5 tracking-[-0.01em] text-gray-900">
+                {tenant.name}
+              </span>
+              {/* Where the removed header bar's caption went. Every academic
+                * screen is implicitly scoped to these, and a screen showing a
+                * term's figures without saying which term is one somebody will
+                * misread. */}
+              {(session || period) && (
+                <span className="block truncate text-2xs leading-4 text-gray-600">
+                  {[session?.name, period?.name].filter(Boolean).join(' · ')}
+                </span>
+              )}
+            </span>
+          )}
+        </Link>
+      </div>
+
+      <RailToggle collapsed={collapsed} onToggle={toggleRail} />
+
+      {/* ── Sections ──────────────────────────────────────────────────── */}
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
+        {navLoading && <RailSkeleton collapsed={collapsed} />}
+
+        {sections.map((section, index) => (
+          <Section
+            key={section.key}
+            section={section}
+            collapsed={collapsed}
+            activeKey={activeKey}
+            first={index === 0}
+            navLabel={navLabel}
+            onNavigate={() => setMobileNavOpen(false)}
+          />
+        ))}
+      </div>
+
+      {/* ── The one saturated thing in the rail ───────────────────────── */}
+      {quickActions.length > 0 && (
+        <div className={cn('shrink-0', collapsed ? 'px-2 pb-2' : 'px-3 pb-2')}>
+          <QuickCreate actions={quickActions} collapsed={collapsed} navLabel={navLabel} />
+        </div>
+      )}
+
+      {/* ── Footer ────────────────────────────────────────────────────── */}
+      <div className={cn('shrink-0 border-t border-gray-200 pt-2', collapsed ? 'px-2' : 'px-2')}>
+        <FooterLink
+          to="/search"
+          icon={<MagnifyingGlass size={16} />}
+          label="Search"
+          collapsed={collapsed}
+        />
+        <FooterLink
+          to="/notifications"
+          icon={<Bell size={16} />}
+          label="Notifications"
+          collapsed={collapsed}
+        />
+        <FooterLink to="/help" icon={<Question size={16} />} label="Help" collapsed={collapsed} />
+        <FooterLink to="/settings" icon={<Gear size={16} />} label="Settings" collapsed={collapsed} />
+      </div>
+
+      {/* ── Account ───────────────────────────────────────────────────── */}
+      <div className={cn('shrink-0 border-t border-gray-200 p-2')}>
+        <Menu
+          align="start"
+          items={[
+            {
+              key: 'account',
+              label: 'Your account',
+              icon: <UserCircle size={15} />,
+              onSelect: () => navigate({ to: '/account' }),
+            },
+            {
+              key: 'signout',
+              label: 'Sign out',
+              icon: <SignOut size={15} />,
+              destructive: true,
+              separated: true,
+              onSelect: signOut,
+            },
+          ]}
+          side="top"
+          className="w-52"
+          trigger={({ toggle, ref }) => (
+            <button
+              ref={ref as never}
+              type="button"
+              onClick={toggle}
+              className={cn(
+                'flex w-full items-center gap-2 rounded-md py-1.5 transition-colors hover:bg-gray-200',
+                collapsed ? 'justify-center px-1' : 'px-1.5',
+              )}
+            >
+              <Avatar name={account?.name} size="sm" />
+              {!collapsed && (
+                <>
+                  <span className="min-w-0 flex-1 text-left">
+                    <span className="block truncate text-xs font-medium text-gray-900">
+                      {account?.name ?? 'Signed in'}
+                    </span>
+                    <span className="block truncate text-2xs text-gray-600">
+                      {membership?.is_platform_admin ? 'Platform admin' : (account?.email ?? '')}
+                    </span>
+                  </span>
+                  <CaretUpDown size={13} className="shrink-0 text-gray-600" />
+                </>
+              )}
+            </button>
+          )}
+        />
+      </div>
+    </nav>
+  )
+}
+
+/**
+ * The collapse control, sitting ON the rail's edge.
+ *
+ * It used to be two buttons: one tucked into the header row beside the
+ * wordmark, and — because there is no room for it beside a 24px mark — a
+ * second one on its own centred row underneath when collapsed. That second row
+ * pushed the whole tree down by 32px on collapse, so the rail's first item
+ * moved every time you toggled, and neither button sat anywhere memorable.
+ *
+ * One button now, pinned to the hairline and centred on the 48px wordmark row,
+ * half in the rail and half on the canvas. The edge is the thing it moves, so
+ * the edge is where it belongs, and it stays put between the two states: only
+ * the caret flips to point the way the rail is about to travel. Because it is
+ * absolutely positioned against the `nav`, it rides the width transition
+ * instead of jumping when the rail animates.
+ *
+ * A white disc on a #f9f9f9 ground with a hairline and the faintest shadow —
+ * elevation is how it reads as sitting ON the seam rather than in either
+ * surface. It is the only round thing in the rail, which is what makes it
+ * findable at a glance in a tree of sixty square rows.
+ *
+ * Hidden below `lg`, where the rail is a drawer with nothing to collapse.
+ */
+function RailToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  const Caret = collapsed ? CaretRight : CaretLeft
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      aria-expanded={!collapsed}
+      className={cn(
+        'absolute right-0 top-3 z-20 hidden h-6 w-6 translate-x-1/2 items-center justify-center',
+        'rounded-full border border-gray-200 bg-white text-gray-500 shadow-xs lg:flex',
+        'transition-[color,border-color,transform] duration-150',
+        'hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-rail',
+        'active:scale-90',
+      )}
+    >
+      <Caret size={11} weight="bold" />
+    </button>
+  )
+}
+
+/**
+ * One domain group.
+ *
+ * ── Static, not an accordion ───────────────────────────────────────────────
+ *
+ * Sprig's grouped rail — its Settings sub-nav, which is the right reference
+ * for a tree this long — shows every item at once under a plain bold heading.
+ * There is no disclosure chevron, nothing collapses, and the heading is text
+ * rather than a control.
+ *
+ * An accordion was tried here and removed. It buys vertical space at the cost
+ * of the one thing this rail is for: seeing what the institution has. With
+ * nineteen sections closed, the reader is looking at a list of nouns and has
+ * to guess which one holds the screen they want.
+ *
+ * The counter-argument — that collapsing costs a second click — is real but
+ * narrower than it looks: the section holding the CURRENT page is open on
+ * arrival, so the common path (moving within the domain you are already in) is
+ * still one click. Only jumping to a different domain costs the extra one, and
+ * that is the trade that turns a seventy-nine-row outline back into a menu.
+ * An owner holds sixty modules across nineteen domains; Sprig's own rail is
+ * nine items long and needs no headings at all.
+ *
+ * A section whose items would all be hidden renders nothing at all, so the
+ * whitespace never opens under an empty heading.
+ */
+function Section({
+  section,
+  collapsed,
+  activeKey,
+  first,
+  navLabel,
+  onNavigate,
+}: {
+  section: NavigationItem
+  collapsed: boolean
+  activeKey: string | null
+  first: boolean
+  navLabel: NavLabels
+  onNavigate: () => void
+}) {
+  const overrides = useUiStore((s) => s.sectionOverrides)
+  const toggleSection = useUiStore((s) => s.toggleSection)
+
+  const items = section.children.filter((item) => item.route)
+  const holdsActive = items.some((item) => item.key === activeKey)
+
+  /* The reader's explicit choice wins; otherwise the section holding the
+   * current page is the one that is open. */
+  const open = overrides[section.key] ?? holdsActive
+
+  if (items.length === 0) return null
+
+  /* Collapsed to the icon rail there is no heading to click, and hiding items
+   * behind one the reader cannot see would strand them. */
+  if (collapsed) {
+    return (
+      <div className={cn(first ? 'pt-1' : 'pt-2')}>
+        {!first && <div className="mx-auto my-2 h-px w-6 bg-gray-300" aria-hidden />}
+        <ul className="flex flex-col gap-0.5">
+          {items.map((item) => (
+            <NavRow
+              key={item.key}
+              item={item}
+              collapsed
+              active={item.key === activeKey}
+              navLabel={navLabel}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn(first ? 'pt-1' : 'pt-2')}>
+      <button
+        type="button"
+        onClick={() => toggleSection(section.key, !open)}
+        aria-expanded={open}
+        className="flex h-9 w-full items-center gap-1.5 rounded-md px-2 text-left text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100"
+      >
+        <CaretRight
+          size={11}
+          weight="bold"
+          className={cn(
+            'shrink-0 text-gray-500 transition-transform duration-150',
+            open && 'rotate-90',
+          )}
+        />
+        <span className="truncate">{navLabel.section(section)}</span>
+        {/* A closed section that holds the current page still says so. */}
+        {!open && holdsActive && (
+          <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden />
+        )}
+      </button>
+
+      <ul className={cn('flex flex-col gap-0.5 pl-3', open ? 'mt-0.5' : 'hidden')}>
+        {items.map((item) => (
+          <NavRow
+            key={item.key}
+            item={item}
+            collapsed={collapsed}
+            active={item.key === activeKey}
+            navLabel={navLabel}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </ul>
+    </div>
+  )
+}
+function NavRow({
+  item,
+  collapsed,
+  active,
+  navLabel,
+  onNavigate,
+}: {
+  item: NavigationItem
+  collapsed: boolean
+  active: boolean
+  navLabel: NavLabels
+  onNavigate: () => void
+}) {
+  const label = navLabel.item(item)
+
+  /* The registry's full name, but only where it says something the short one
+   * does not, and only on a row that is showing its label — the collapsed rail
+   * already has a tooltip, and two tooltips on one target is one too many. */
+  const full = !collapsed && label !== item.label ? item.label : undefined
+
+  /* Typed `string` on purpose. `Link` validates `to` against the literal route
+   * tree, and this destination is a segment the API invented — most of them
+   * land on the catch-all `/$module`, which no literal can describe. Widening
+   * to `string` is the router's own opt-out for a path computed at runtime;
+   * the alternative is asserting a route this build cannot know exists. Same
+   * reason `FooterLink` below takes a `string`. */
+  const href: string = `/${item.route}`
+
+  const row = (
+    <Link
+      to={href}
+      onClick={onNavigate}
+      title={full}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'group flex items-center gap-2.5 rounded-md text-sm leading-5 transition-colors',
+        collapsed ? 'h-10 w-10 justify-center' : 'h-10 px-2.5',
+        active
+          ? 'bg-rail-active font-semibold text-gray-900'
+          : 'font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+      )}
+    >
+      <ModuleIcon
+        name={item.icon ?? item.key}
+        size={16}
+        className={cn('shrink-0', active ? 'text-gray-900' : 'text-gray-500')}
+      />
+      {!collapsed && (
+        <>
+          <span className="truncate">{label}</span>
+          {item.badge && (
+            <Badge tone="brand" className="ml-auto shrink-0">
+              {item.badge}
+            </Badge>
+          )}
+        </>
+      )}
+    </Link>
+  )
+
+  return (
+    <li>
+      {collapsed ? (
+        <Tooltip content={label} className="flex justify-center">
+          {row}
+        </Tooltip>
+      ) : (
+        row
+      )}
+    </li>
+  )
+}
+
+/**
+ * The yellow button.
+ *
+ * Sprig's is "New Study +"; here it opens the handful of things this person
+ * does most — drawn from `quick_actions`, which the API builds from the
+ * modules they actually hold, so a bursar's list is financial and a teacher's
+ * is not.
+ */
+function QuickCreate({
+  actions,
+  collapsed,
+  navLabel,
+}: {
+  actions: NavigationItem[]
+  collapsed: boolean
+  navLabel: NavLabels
+}) {
+  const navigate = useNavigate()
+
+  return (
+    <Menu
+      align="start"
+      side="top"
+      fullWidth={!collapsed}
+      className="w-52"
+      items={actions
+        .filter((action) => action.route)
+        .map((action) => ({
+          key: action.key,
+          label: navLabel.item(action),
+          icon: <ModuleIcon name={action.icon ?? action.key} size={15} />,
+          onSelect: () => navigate({ to: `/${action.route}` }),
+        }))}
+      trigger={({ toggle, ref }) => (
+        <button
+          ref={ref as never}
+          type="button"
+          onClick={toggle}
+          aria-label="Quick actions"
+          className={cn(
+            'flex items-center rounded-md bg-brand-400 font-medium text-gray-900 transition-colors hover:bg-brand-500',
+            collapsed
+              ? 'h-9 w-9 justify-center'
+              : 'h-9 w-full justify-between px-3 text-sm',
+          )}
+        >
+          {collapsed ? (
+            <Plus size={15} weight="bold" />
+          ) : (
+            <>
+              <span>Quick actions</span>
+              <Plus size={14} weight="bold" />
+            </>
+          )}
+        </button>
+      )}
+    />
+  )
+}
+
+function FooterLink({
+  to,
+  icon,
+  label,
+  collapsed,
+}: {
+  to: string
+  icon: React.ReactNode
+  label: string
+  collapsed: boolean
+}) {
+  const row = (
+    <Link
+      to={to}
+      className={cn(
+        'flex items-center gap-2.5 rounded-md text-sm leading-5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900',
+        collapsed ? 'h-10 w-10 justify-center' : 'h-10 px-2.5',
+      )}
+      activeProps={{ className: 'bg-rail-active text-gray-900 font-semibold' }}
+    >
+      <span className="shrink-0">{icon}</span>
+      {!collapsed && <span className="truncate">{label}</span>}
+    </Link>
+  )
+
+  return collapsed ? (
+    <Tooltip content={label} className="flex justify-center">
+      {row}
+    </Tooltip>
+  ) : (
+    row
+  )
+}
+
+/** Sized like the real rail so nothing shifts when the tree lands. */
+function RailSkeleton({ collapsed }: { collapsed: boolean }) {
+  return (
+    <div className="pt-1" aria-hidden>
+      {[4, 3, 5].map((rows, group) => (
+        <div key={group} className={group === 0 ? '' : 'pt-4'}>
+          {!collapsed && <div className="mx-2 mb-2 h-2 w-16 animate-pulse rounded bg-gray-200" />}
+          {Array.from({ length: rows }).map((_, row) => (
+            <div
+              key={row}
+              className={cn(
+                'mb-1 flex items-center gap-2',
+                collapsed ? 'h-8 justify-center' : 'h-7 px-2',
+              )}
+            >
+              <div className="h-4 w-4 shrink-0 animate-pulse rounded bg-gray-200" />
+              {!collapsed && (
+                <div
+                  className="h-2.5 animate-pulse rounded bg-gray-200"
+                  style={{ width: `${50 + ((group * 3 + row) % 4) * 12}%` }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** The mark. Yellow tile, dark glyph — the same relationship the CTA has. */
+function BrandMark() {
+  return (
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[0.3rem] bg-brand-400">
+      <svg viewBox="0 0 32 32" className="h-4 w-4" aria-hidden>
+        <path d="M16 7 5.5 12.2 16 17.4l10.5-5.2L16 7Z" className="fill-gray-900" />
+        <path
+          d="M9.2 15.6v5.1c0 1.9 3 3.4 6.8 3.4s6.8-1.5 6.8-3.4v-5.1L16 19l-6.8-3.4Z"
+          className="fill-gray-900 opacity-[0.55]"
+        />
+      </svg>
+    </span>
+  )
+}

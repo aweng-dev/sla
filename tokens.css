@@ -1,0 +1,85 @@
+/* The Sprig palette, as CSS custom properties.
+ *
+ * Mirrors `palette.js` hex for hex. CSS cannot import JS, so the two files are
+ * kept in step by hand and BOTH must change together — a value edited here and
+ * not there produces a screen that is half one palette and half the other,
+ * which is very hard to see and very easy to ship.
+ *
+ * `tailwind.config.js` points the `sl-*` colour aliases at these, so a
+ * `bg-sl-surface` and a `var(--sl-surface)` are guaranteed to be the same
+ * paint. */
+
+:root {
+  /* ── Surfaces ───────────────────────────────────────────────────────────
+   * The canvas and the cards are BOTH pure white. Sprig separates surfaces
+   * with a hairline, never a tint and never a shadow. */
+  --sl-bg: #ffffff;
+  --sl-surface: #ffffff;
+  --sl-surface-inset: #f9f9f9;
+  --sl-surface-table-head: #faf8f4;
+  --sl-rail: #f9f9f9;
+  --sl-rail-active: #eeeeee;
+  --sl-rail-hover: #f3f3f3;
+  --sl-cream: #f2eeea;
+
+  /* ── Hairlines ──────────────────────────────────────────────────────────
+   * `--sl-border` is the workhorse; the strong one is for a divider that has
+   * to read across a busy table. */
+  --sl-border: #efefef;
+  --sl-border-strong: #dedede;
+
+  /* ── Ink ────────────────────────────────────────────────────────────────
+   * Achromatic, and never pure black. */
+  --sl-text: #2f2f2f;
+  --sl-text-secondary: #5e5e5e;
+  /* 4.54:1 on white. Sprig's own #8e8e8e is 3.28:1 and this product puts real
+   * information in muted ink — see the note on `neutral` in palette.js. */
+  --sl-text-muted: #767676;
+  --sl-text-faint: #a7a6a7;
+  --sl-text-inverse: #ffffff;
+
+  /* ── The one accent hue ─────────────────────────────────────────────────
+   * Survives as 14px text, which is why it is not the yellow. */
+  --sl-accent: #6a5cc8;
+  --sl-accent-hover: #5a4cb4;
+  --sl-accent-soft: #f2f1fb;
+  --sl-accent-border: #cfcbef;
+
+  /* ── The CTA ────────────────────────────────────────────────────────────
+   * A FILL only. `--sl-cta-ink` is what goes ON it — dark, because nothing
+   * legible sits in white on #f8d030. Never set text to --sl-cta. */
+  --sl-cta: #f8d030;
+  --sl-cta-hover: #fbc902;
+  --sl-cta-ink: #2f2f2f;
+  --sl-cta-soft: #fde596;
+
+  /* ── Status ─────────────────────────────────────────────────────────────*/
+  --sl-success: #2e9e6b;
+  --sl-success-soft: #eaf7f0;
+  --sl-warning: #dba800;
+  --sl-warning-soft: #fdf3c8;
+  --sl-danger: #d33f3f;
+  --sl-danger-soft: #fdeeee;
+
+  /* ── Inverted chrome ────────────────────────────────────────────────────
+   * The floating bulk-action bar, tooltips, the toast. */
+  --sl-ink-deep: #0c232f;
+  --sl-ink-deep-ink: #ffffff;
+
+  /* ── Focus ──────────────────────────────────────────────────────────────*/
+  --sl-focus: #6a5cc8;
+  --sl-focus-ring: rgba(106, 92, 200, 0.32);
+
+  /* ── Geometry ───────────────────────────────────────────────────────────
+   * Sprig is a small, dense product: 6px radii, 13px body, 30px table rows. */
+  --sl-radius: 0.375rem;
+  --sl-radius-sm: 0.25rem;
+  --sl-radius-lg: 0.5rem;
+  --sl-rail-width: 13.5rem;
+  --sl-rail-width-collapsed: 3.5rem;
+
+  /* ── Motion ─────────────────────────────────────────────────────────────*/
+  --sl-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sl-dur-fast: 120ms;
+  --sl-dur: 180ms;
+}
