@@ -164,7 +164,11 @@ export function ProfileForm({
 
       <CardBody>
         <form id="account-profile" onSubmit={form.handleSubmit(onSubmit)} noValidate>
-          <div className="grid gap-x-4 sm:grid-cols-2">
+          {/* `gap-y-2` is what keeps a field's hint off the label of the field
+              beneath it — with no row gap, "Used to sign in and to reach you."
+              sat directly against "Preferred language" and read as one block.
+              Same measure the institution form uses. */}
+          <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
             <Field label="Full name" required error={errors.name?.message} className="sm:col-span-2">
               {(props) => (
                 <Input

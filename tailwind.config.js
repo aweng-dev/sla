@@ -139,7 +139,7 @@ export default {
         float: '0 8px 28px rgba(12, 35, 47, 0.22)',
       },
       spacing: {
-        rail: '13.5rem',
+        rail: '14rem',
         'rail-collapsed': '3.5rem',
         topbar: '3.25rem',
       },

@@ -26,6 +26,7 @@ export function PageHeader({
   icon,
   meta,
   actions,
+  tabs,
   className,
 }: {
   title: ReactNode
@@ -35,26 +36,51 @@ export function PageHeader({
   /** A row of small facts under the title: status, owner, dates. */
   meta?: ReactNode
   actions?: ReactNode
+  /**
+   * The screen's tab strip.
+   *
+   * Passed IN rather than rendered after, because in Sprig the tabs belong to
+   * the header band: the strip sits under the title and the active tab's
+   * underline lands on the header's own rule. Rendering them as a separate
+   * block below produced two hairlines 30px apart, which is the single
+   * clearest tell that the chrome was not Sprig's.
+   *
+   * Pass `<Tabs bare … />` — this band draws the rule.
+   */
+  tabs?: ReactNode
   className?: string
 }) {
   return (
-    <div className={cn('flex items-start justify-between gap-4', className)}>
-      <div className="flex min-w-0 items-start gap-3">
-        {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
-        <div className="min-w-0">
-          <h1 className="truncate text-xl font-bold tracking-[-0.015em] text-gray-900">
-            {title}
-          </h1>
-          {description && <p className="mt-0.5 text-sm text-gray-600">{description}</p>}
-          {meta && (
-            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-gray-600">
-              {meta}
-            </div>
-          )}
+    <header
+      className={cn(
+        /* Full-bleed rule, padded content. Measured off Sprig: the header's
+         * bottom border runs edge to edge across the canvas while the title
+         * sits on the same 32px gutter as everything below it. */
+        '-mx-5 border-b border-gray-200 px-5 pt-6 lg:-mx-8 lg:px-8',
+        tabs ? 'pb-0' : 'pb-5',
+        className,
+      )}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start gap-3">
+          {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold tracking-[-0.015em] text-gray-900">
+              {title}
+            </h1>
+            {description && <p className="mt-0.5 text-sm text-gray-600">{description}</p>}
+            {meta && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-gray-600">
+                {meta}
+              </div>
+            )}
+          </div>
         </div>
+        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-    </div>
+
+      {tabs && <div className="mt-4">{tabs}</div>}
+    </header>
   )
 }
 

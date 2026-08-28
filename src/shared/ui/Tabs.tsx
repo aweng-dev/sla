@@ -38,6 +38,7 @@ export function Tabs({
   items,
   value,
   onChange,
+  bare = false,
   /** Pass the same id to `panelId()` when rendering the panel, so each tab can
    *  point at the content it controls. */
   baseId,
@@ -47,6 +48,10 @@ export function Tabs({
   value: string
   onChange: (key: string) => void
   baseId?: string
+  /** Drop the strip's own hairline. Set when the tabs sit inside a
+   *  `PageHeader`, which draws one full-bleed for them — the active tab's
+   *  underline is meant to land ON that rule, not on a second one 32px in. */
+  bare?: boolean
   className?: string
 }) {
   const fallbackId = useId()
@@ -74,7 +79,10 @@ export function Tabs({
   }
 
   return (
-    <div role="tablist" className={cn('flex items-center gap-5 border-b border-gray-200', className)}>
+    <div
+      role="tablist"
+      className={cn('flex items-center gap-5', !bare && 'border-b border-gray-200', className)}
+    >
       {items.map((item) => {
         const active = item.key === value
         return (

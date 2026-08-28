@@ -84,22 +84,18 @@ export function CommunicationsPage() {
 
   return (
     <PageStack>
-      {/* The one header on these screens that keeps a sentence, and it is
-          down to a single clause.
+      {/* A title alone. The sentence that stood here was worth keeping for one
+          half of it — that a conversation is private — and the other half, the
+          noticeboard reaching an audience, was carried by the word
+          "Noticeboard" in the tab beside it.
 
-          Every other line of this kind was a paraphrase of the tab strip under
-          it, and went. This one is not: it is the only place in the product
-          that says a conversation is private — that an administrator opening
-          this screen cannot read a parent's thread with a form tutor. The tabs
-          say "Messages" and "Noticeboard", which names the two surfaces and
-          promises nothing about who can see them, and a reader who assumes
-          wrongly here assumes wrongly about something that matters. The half
-          about the noticeboard reaching an audience did go: the word
-          noticeboard carries it. */}
-      <PageHeader
-        title="Messages"
-        description="Conversations reach the people in them and nobody else."
-      />
+          The privacy half is already on the screen and said better:
+          `MessagesPanel`'s empty state spells out "not an administrator, not
+          the institution owner", and it says it at the moment somebody is
+          deciding whether to start a thread, which is when the promise is
+          actually being relied on. A vaguer copy of it under the title was the
+          third stacked line in a header Sprig draws in one. */}
+      <PageHeader title="Messages" />
 
       <div>
         <Tabs
