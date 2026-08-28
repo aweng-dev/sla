@@ -94,9 +94,13 @@ export function Tabs({
             className={cn(
               'relative -mb-px flex items-center gap-1.5 border-b-2 pb-2 pt-1 text-sm transition-colors',
               'disabled:cursor-not-allowed disabled:text-gray-400',
+              /* Weight does NOT change between states. Sprig sets every tab
+               * semibold and lets the rule carry the selection; dropping the
+               * inactive ones to regular grey — which this did — made the
+               * strip read as one heading and some links. */
               active
-                ? 'border-gray-900 font-medium text-gray-900'
-                : 'border-transparent text-gray-600 hover:text-gray-900',
+                ? 'border-gray-900 font-semibold text-gray-900'
+                : 'border-transparent font-semibold text-gray-700 hover:text-gray-900',
             )}
           >
             {item.icon}

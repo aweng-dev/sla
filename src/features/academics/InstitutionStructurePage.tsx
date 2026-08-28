@@ -70,10 +70,7 @@ export function InstitutionStructurePage() {
 
   return (
     <PageStack>
-      <PageHeader
-        title="Institution structure"
-        description="How this institution is arranged, and the vocabulary the rest of the product speaks because of it."
-      />
+      <PageHeader title="Institution structure" />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
@@ -110,7 +107,7 @@ export function InstitutionStructurePage() {
             subtitle="Whether this institution splits into sites and departments at all."
           />
           <Facts>
-            <Fact label={humanize(institution?.campuses_label ?? t('campuses'))}>
+            <Fact label={humanize(t('campuses'))}>
               <Flag on={supportsCampuses}>
                 {supportsCampuses ? 'In use' : 'Not arranged this way'}
               </Flag>

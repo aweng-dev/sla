@@ -121,7 +121,7 @@ export function AnalyticsTab() {
     <div className="flex flex-col gap-5">
       {/* ── Range ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-600">
+        <p className="text-xs font-medium text-gray-600">
           {formatDate(from)} – {formatDate(to)} · {humanize(range.granularity)}
         </p>
         <Menu
@@ -560,7 +560,7 @@ function FinancePanel({
 function Figure({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-600">{label}</p>
+      <p className="text-xs font-medium text-gray-600">{label}</p>
       <p className="mt-0.5 text-base font-semibold tabular text-gray-900">{value}</p>
     </div>
   )

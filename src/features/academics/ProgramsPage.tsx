@@ -32,7 +32,7 @@ import { FieldRow, FormDialog } from './components/FormDialog'
 import { actionsColumn } from './components/RowActions'
 import { reportError, useServerErrors } from './components/useServerErrors'
 import { useUnitCatalog } from './components/pickers'
-import { useDebounced } from './components/useDebounced'
+import { useDebounced } from '@/shared/lib/useDebounced'
 import { DURATION_UNITS, type Program } from './academics.types'
 
 /**
@@ -247,7 +247,6 @@ export function ProgramsPage() {
     <PageStack>
       <PageHeader
         title={t('programmes')}
-        description={`What a ${t('learner').toLowerCase()} is enrolled on — a course of study spanning one or more ${t('sessions').toLowerCase()}.`}
         actions={
           canManage ? (
             <Button

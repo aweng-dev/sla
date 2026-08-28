@@ -37,7 +37,7 @@ import {
   useProgramCatalog,
   useSessionCatalog,
 } from './components/pickers'
-import { useDebounced } from './components/useDebounced'
+import { useDebounced } from '@/shared/lib/useDebounced'
 import type { LearningGroup } from './academics.types'
 
 /**
@@ -267,7 +267,6 @@ export function LearningGroupsPage() {
     <PageStack>
       <PageHeader
         title={t('groups')}
-        description={`Where each ${t('learner').toLowerCase()} sits. Registers, timetables and ${t('courses').toLowerCase()} attach to these.`}
         actions={
           canManage ? (
             <Button

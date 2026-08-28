@@ -300,7 +300,7 @@ function ChildCard({
           </span>
         }
         subtitle={
-          <span className="flex flex-wrap items-center gap-x-1.5">
+          <span className="flex flex-wrap items-center gap-x-1.5 font-medium">
             {child.student_number && <span className="tabular">{child.student_number}</span>}
             {child.level && (
               <>
@@ -334,7 +334,7 @@ function ChildCard({
           <div className={cn('grid gap-4', columns === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
             {showAttendance && (
               <div>
-                <p className="text-xs text-gray-600">Attendance</p>
+                <p className="text-xs font-medium text-gray-600">Attendance</p>
                 {attendancePending ? (
                   <Skeleton className="mt-1.5 h-5 w-16" />
                 ) : (
@@ -354,7 +354,7 @@ function ChildCard({
 
             {showFees && (
               <div>
-                <p className="text-xs text-gray-600">Fees</p>
+                <p className="text-xs font-medium text-gray-600">Fees</p>
                 {balancePending ? (
                   <Skeleton className="mt-1.5 h-5 w-24" />
                 ) : (

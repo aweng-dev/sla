@@ -168,7 +168,6 @@ function UnbuiltModule({
           </EntityIcon>
         }
         title={item.label}
-        description={entry?.summary}
         meta={
           <>
             <span>{section.label}</span>
@@ -201,6 +200,13 @@ function UnbuiltModule({
             }
           />
           <CardBody className="space-y-4">
+            {/* The registry's own sentence about this module. It used to sit
+                under the title, which made the header three stacked lines
+                where Sprig's is two — a title and a row of facts. Nothing is
+                lost by moving it: the card exists to say what the module is
+                and what is behind it, so the sentence leads it. */}
+            {entry && <p className="text-sm text-gray-600">{entry.summary}</p>}
+
             <p className="text-sm text-gray-600">
               Nothing is hidden from you and nothing is broken. A few screens in this app are built
               against the API; every other item in the rail resolves here, and reports what the
@@ -426,7 +432,9 @@ function BuiltScreens() {
                 {destination.icon}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm text-gray-900">{destination.label}</span>
+                <span className="block truncate text-sm font-medium text-gray-900">
+                  {destination.label}
+                </span>
                 <span className="block truncate text-xs text-gray-600">
                   {destination.description}
                 </span>
@@ -456,7 +464,6 @@ function NotHeld({ record }: { record: Module }) {
           </EntityIcon>
         }
         title={record.name}
-        description={entry?.summary}
         meta={
           <>
             {domain && (
@@ -479,6 +486,12 @@ function NotHeld({ record }: { record: Module }) {
             subtitle={accessReason(record, tenant.name)}
           />
           <CardBody className="space-y-3">
+            {/* Same move as the unbuilt screen: the registry's sentence comes
+                out of the header, which is now a title and a row of facts, and
+                leads the card instead. A reader told they cannot reach
+                something is owed a line saying what it was. */}
+            {entry && <p className="text-sm text-gray-600">{entry.summary}</p>}
+
             <p className="text-sm text-gray-600">
               This is not only a hidden menu item. The API refuses every request to{' '}
               <Mono>{record.id}</Mono> for this account, so there would be nothing behind the screen
@@ -583,10 +596,12 @@ function ModuleSkeleton() {
     <PageStack>
       <div className="flex items-start gap-3">
         <Skeleton className="h-9 w-9 rounded-lg" />
+        {/* Two bars, because the header is now two lines: the title and the
+            row of facts under it. A third bar here would leave the page
+            settling by a line every time the context landed. */}
         <div className="flex-1 space-y-2 pt-0.5">
           <Skeleton className="h-5 w-56" />
-          <Skeleton className="h-3.5 w-full max-w-xl" />
-          <Skeleton className="h-3 w-40" />
+          <Skeleton className="h-3 w-64" />
         </div>
       </div>
 

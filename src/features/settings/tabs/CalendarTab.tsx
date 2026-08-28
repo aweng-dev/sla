@@ -130,8 +130,8 @@ function CalendarFact({ label, value }: { label: string; value: string }) {
         <CalendarBlank size={15} />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-sm text-gray-900">{value}</p>
-        <p className="truncate text-2xs text-gray-600">{label}</p>
+        <p className="truncate text-sm font-medium text-gray-900">{value}</p>
+        <p className="truncate text-2xs font-medium text-gray-600">{label}</p>
       </div>
     </div>
   )

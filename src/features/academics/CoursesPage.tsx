@@ -32,7 +32,7 @@ import { FieldRow, FormDialog } from './components/FormDialog'
 import { actionsColumn } from './components/RowActions'
 import { reportError, useServerErrors } from './components/useServerErrors'
 import { useUnitCatalog } from './components/pickers'
-import { useDebounced } from './components/useDebounced'
+import { useDebounced } from '@/shared/lib/useDebounced'
 import type { Course } from './academics.types'
 
 /**
@@ -252,7 +252,6 @@ export function CoursesPage() {
     <PageStack>
       <PageHeader
         title={t('courses')}
-        description={`The catalogue this institution teaches from. When and to whom each is taught is a course offering.`}
         actions={
           canManage ? (
             <Button

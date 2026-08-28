@@ -236,3 +236,67 @@ export interface CatalogSession {
   status: string
   is_current: boolean
 }
+
+/* ── Pastoral ───────────────────────────────────────────────────────────── */
+
+/**
+ * `GET /discipline/students/{id}/conduct` — the whole behaviour picture in one
+ * call: the running points, the incidents behind them, the sanctions issued
+ * and the individual records.
+ *
+ * `net_points` is merits minus demerits and is what a form tutor reads first,
+ * so it is shown as the headline rather than being recomputed in the client
+ * (the server's arithmetic is the one the school's policy defines).
+ */
+export interface ConductSummary {
+  student_id: string
+  merit_points: number
+  demerit_points: number
+  net_points: number
+  incident_count: number
+  /** Sanctions still in force, as opposed to every sanction ever issued. */
+  effective_sanction_count: number
+}
+
+export interface BehaviourRecord {
+  id: string
+  student_id?: string
+  kind?: string | null
+  points?: number | null
+  note?: string | null
+  occurred_on?: string | null
+  recorded_by?: string | null
+  [key: string]: unknown
+}
+
+export interface StudentConduct {
+  summary: ConductSummary
+  incidents: Record<string, unknown>[]
+  sanctions: Record<string, unknown>[]
+  behaviour_records: BehaviourRecord[]
+}
+
+/**
+ * `GET /health/students/{id}/emergency-summary` — the little that may be shown
+ * to somebody who is not the nurse.
+ *
+ * `has_record` is false for a learner with no medical record at all, which is
+ * NOT the same as a record that happens to be empty: the first means nobody
+ * has ever filled one in, and the screen says so rather than implying the
+ * child has no conditions.
+ */
+export interface EmergencySummary {
+  subject_type: string
+  subject_id: string
+  has_record: boolean
+  blood_group: string | null
+  emergency_contact: {
+    name: string | null
+    relationship: string | null
+    phone: string | null
+    alternate_phone: string | null
+  }
+  consent_to_emergency_treatment: boolean
+  conditions: { name?: string; severity?: string; [key: string]: unknown }[]
+  has_critical_condition: boolean
+}

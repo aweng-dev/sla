@@ -1,4 +1,4 @@
-import { get, getPage, http, post, PER_PAGE_DEFAULT } from '@/shared/api/client'
+import { del, get, getPage, http, post, put, PER_PAGE_DEFAULT } from '@/shared/api/client'
 import { qk } from '@/shared/api/queryKeys'
 import type {
   CatalogGroup,
@@ -13,6 +13,9 @@ import type {
   StudentRecord,
   StudentRollSummary,
   StudentRow,
+  StudentConduct,
+  BehaviourRecord,
+  EmergencySummary,
 } from './students.types'
 
 /**
@@ -42,6 +45,94 @@ import type {
  * for their own or their own child's record. `portalApi` is what those two
  * readers may call instead; the screens branch on `useTenant().portal`.
  */
+
+/**
+ * ── The lifecycle actions, and why none of them is a status write ─────────
+ *
+ * Promote, transfer, withdraw and graduate are four POSTs to named sub-routes,
+ * and every one of them does domain work beyond setting a column: graduating
+ * ends every open session, programme and period enrolment, drops the course
+ * registrations and closes the learning-group membership. `PUT /admin/students/{id}`
+ * does NOT accept `status` — it takes the person's details and their numbers
+ * and nothing else — so there is no way to reach these outcomes by editing,
+ * and no way back from one either. There is no un-graduate endpoint.
+ *
+ * That asymmetry is the reason every one of these is behind a confirmation
+ * that says what it will do, rather than a menu item that just fires.
+ */
+
+export interface PromotePayload {
+  academic_session_id: string
+  academic_level_id?: string | null
+  /** Held back rather than moved up. The server records the outcome either
+   *  way — a repeat is a promotion decision, not the absence of one. */
+  repeat?: boolean
+}
+
+export interface PromoteResult {
+  student_id: string
+  academic_session_id: string | null
+  promotion_status: string
+  promoted_to_academic_level_id: string | null
+}
+
+export interface TransferPayload {
+  reason: string
+  /** One of the two is required; the API validates them as
+   *  `required_without` each other. */
+  to_campus_id?: string | null
+  to_program_id?: string | null
+  academic_level_id?: string | null
+  academic_session_id?: string | null
+  curriculum_version_id?: string | null
+}
+
+export interface WithdrawPayload {
+  reason: string
+  withdrawn_on?: string | null
+}
+
+export interface GraduatePayload {
+  graduated_on?: string | null
+}
+
+export interface UpdateStudentPayload {
+  person?: {
+    first_name?: string
+    middle_name?: string | null
+    last_name?: string
+    preferred_name?: string | null
+    date_of_birth?: string | null
+    gender?: string | null
+    nationality_code?: string | null
+  }
+  student_number?: string | null
+  admission_number?: string | null
+  admission_date?: string | null
+}
+
+export interface LinkGuardianPayload {
+  guardian_id: string
+  relationship_type: string
+  is_legal_guardian?: boolean
+  has_financial_responsibility?: boolean
+  can_pick_up?: boolean
+  emergency_priority?: number | null
+  receives_academic_notifications?: boolean
+  receives_financial_notifications?: boolean
+  notes?: string | null
+}
+
+/** `POST /admin/students/{id}/photo` takes multipart with the field named
+ *  `photo`: an image, png/jpg/jpeg/webp, at most 8 MB, between 100 and 6000
+ *  pixels on each side. Checked here before sending so a phone photo that is
+ *  too large fails in the dialog rather than after the upload. */
+export const PHOTO_RULES = {
+  accept: 'image/png,image/jpeg,image/webp',
+  maxBytes: 8 * 1024 * 1024,
+  minPixels: 100,
+  maxPixels: 6000,
+} as const
 
 export const STUDENT_STATUSES = ['active', 'graduated', 'transferred', 'withdrawn'] as const
 
@@ -105,6 +196,80 @@ export const studentsApi = {
    *  the two names are required — the API treats a student admitted before
    *  their class is decided as a real state rather than an incomplete one. */
   admit: (payload: AdmitStudentPayload) => post<StudentRecord>('/admin/students', payload),
+
+  /* ── Editing ───────────────────────────────────────────────────────── */
+
+  /** The person's details and their numbers. NOT status — that is what the
+   *  lifecycle actions below are for, and sending it here is silently
+   *  ignored rather than refused, which is the worst of both. */
+  update: (studentId: string, payload: UpdateStudentPayload) =>
+    put<StudentRecord>(`/admin/students/${studentId}`, payload),
+
+  remove: (studentId: string) => del(`/admin/students/${studentId}`),
+
+  /* ── Lifecycle ─────────────────────────────────────────────────────── */
+
+  /** Moves the learner up a level for a session — or holds them back, which
+   *  the API records as an outcome rather than as nothing happening. Answers
+   *  a summary, not the student record. */
+  promote: (studentId: string, payload: PromotePayload) =>
+    post<PromoteResult>(`/admin/students/${studentId}/promote`, payload),
+
+  /** To another campus or another programme. `reason` is required and is
+   *  kept — a transfer is a thing somebody has to be able to explain later. */
+  transfer: (studentId: string, payload: TransferPayload) =>
+    post<StudentRecord>(`/admin/students/${studentId}/transfer`, payload),
+
+  withdraw: (studentId: string, payload: WithdrawPayload) =>
+    post<StudentRecord>(`/admin/students/${studentId}/withdraw`, payload),
+
+  /**
+   * Ends every open enrolment, drops the course registrations and closes the
+   * learning-group membership, then stamps the leaving date.
+   *
+   * IRREVERSIBLE through the API — there is no inverse endpoint, and
+   * `PUT /admin/students/{id}` cannot set the status back. Anything calling
+   * this must confirm first.
+   */
+  graduate: (studentId: string, payload: GraduatePayload = {}) =>
+    post<StudentRecord>(`/admin/students/${studentId}/graduate`, payload),
+
+  /* ── Photograph ────────────────────────────────────────────────────── */
+
+  uploadPhoto: async (studentId: string, file: File): Promise<void> => {
+    const body = new FormData()
+    body.append('photo', file)
+    /* Content-Type is deliberately unset: the browser has to add the multipart
+     * boundary, and the client's JSON default would replace it. */
+    await http.post(`/admin/students/${studentId}/photo`, body, {
+      headers: { 'Content-Type': undefined as unknown as string },
+    })
+  },
+
+  removePhoto: (studentId: string) => del(`/admin/students/${studentId}/photo`),
+
+  /* ── Guardians ─────────────────────────────────────────────────────── */
+
+  linkGuardian: (studentId: string, payload: LinkGuardianPayload) =>
+    post<GuardianLink>(`/admin/students/${studentId}/guardians`, payload),
+
+  /* ── Pastoral ──────────────────────────────────────────────────────── */
+
+  /**
+   * Conduct and health sit on their own surfaces (`/discipline/*`, `/health/*`)
+   * rather than under `/admin/students`, because they are gated on their own
+   * modules and answer to a different set of readers. They are reached from
+   * the student record all the same — a form tutor asking "how is this child
+   * doing" is asking one question.
+   */
+  conduct: (studentId: string) =>
+    get<StudentConduct>(`/discipline/students/${studentId}/conduct`),
+
+  behaviour: (studentId: string) =>
+    get<BehaviourRecord[]>(`/discipline/students/${studentId}/behaviour-records`),
+
+  emergency: (studentId: string) =>
+    get<EmergencySummary>(`/health/students/${studentId}/emergency-summary`),
 
   photo: async (studentId: string): Promise<Blob> => {
     const response = await http.get<Blob>(`/admin/students/${studentId}/photo`, {

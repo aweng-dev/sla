@@ -45,10 +45,10 @@ export function HelpPage() {
 
   return (
     <PageStack>
-      <PageHeader
-        title="Help"
-        description="What this is, how it was set up, and the words this institution uses for things."
-      />
+      {/* A title alone. The sentence here was a table of contents for the six
+          cards below, every one of which already carries its own heading and
+          its own grey line — so it said each thing twice, a screen apart. */}
+      <PageHeader title="Help" />
 
       <div className="flex w-full max-w-3xl flex-col gap-5">
         <Card>
@@ -205,15 +205,16 @@ const PORTAL_LABELS: Record<string, string> = {
 /**
  * One label and one value, on one line.
  *
- * The label is a caption — regular weight, grey, in a fixed left column — and
- * the value is the thing to read. Ranging them apart across the full width of
- * the canvas, which is what `justify-between` did, left a hand's width of empty
- * paper between a word and its answer and made eleven facts unscannable.
+ * The label is a caption — medium, grey, in a fixed left column — and the
+ * value is the thing to read, in regular ink. Ranging them apart across the
+ * full width of the canvas, which is what `justify-between` did, left a hand's
+ * width of empty paper between a word and its answer and made eleven facts
+ * unscannable.
  */
 function Row({ label, value }: { label: ReactNode; value?: ReactNode }) {
   return (
     <div className="grid gap-x-6 gap-y-0.5 border-b border-gray-200 py-2 last:border-0 sm:grid-cols-[13rem_minmax(0,1fr)]">
-      <dt className="text-sm text-gray-600">{label}</dt>
+      <dt className="text-sm font-medium text-gray-600">{label}</dt>
       <dd className="min-w-0 text-sm text-gray-900">
         {value || <span className="text-gray-500">Not set</span>}
       </dd>
@@ -326,7 +327,7 @@ function Vocabulary({ terminology }: { terminology: Terminology }) {
           key={row.key}
           className="grid gap-x-6 gap-y-0.5 border-b border-gray-200 py-2 last:border-0 sm:grid-cols-[13rem_minmax(0,1fr)]"
         >
-          <dt className="text-sm text-gray-900">
+          <dt className="text-sm font-medium text-gray-900">
             {row.word}
             {row.plural && <span className="text-gray-500"> · {row.plural}</span>}
           </dt>

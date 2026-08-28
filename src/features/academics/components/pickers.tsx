@@ -64,6 +64,11 @@ export const useCourseCatalog = (enabled = true) =>
 export const useGroupCatalog = (enabled = true) =>
   useCatalog(academicsKeys.catalog.groups, academicsCatalog.groups, enabled)
 
+/** Course offerings, for the screens that attach something to one — an
+ *  assignment, a forum, a timetable slot. */
+export const useOfferingCatalog = (enabled = true) =>
+  useCatalog(academicsKeys.catalog.offerings, academicsCatalog.offerings, enabled)
+
 /**
  * Organizational units and campuses exist only for institutions arranged that
  * way. A school answers 404 RESOURCE_NOT_FOUND — "This institution keeps no

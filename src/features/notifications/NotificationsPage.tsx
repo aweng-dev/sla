@@ -19,7 +19,7 @@ import { ApiError } from '@/shared/api/envelope'
 import { cn } from '@/shared/lib/cn'
 import { formatNumber, humanize } from '@/shared/lib/format'
 import { useModules, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
-import { AnnouncementFeed } from './components/AnnouncementFeed'
+import { NoticeboardPanel } from '@/features/communications/components/NoticeboardPanel'
 import { NotificationFeed } from './components/NotificationFeed'
 import { PreferenceGrid } from './components/PreferenceGrid'
 import {
@@ -190,8 +190,11 @@ export function NotificationsPage() {
     <PageStack>
       <PageHeader
         title="Notifications"
-        description="What the institution has told you, and what you have chosen to be told."
-        /* The unread total already sits on the Notifications tab as a count.
+        /* No sentence under the title: it named the two tabs — the inbox and
+         * the preferences — that are drawn immediately beneath it, and Sprig's
+         * list headers are a title alone.
+         *
+         * The unread total already sits on the Notifications tab as a count.
          * Repeating it here as a filled chip put the same number on screen
          * twice, in the one colour this product reserves for emphasis. */
         actions={
@@ -298,7 +301,11 @@ export function NotificationsPage() {
             aria-labelledby={`${TABS_ID}-tab-announcements`}
             className="pt-4"
           >
-            <AnnouncementFeed />
+            {/* The communications module owns the noticeboard; this tab borrows
+              * it rather than keeping a second, thinner copy that drifts. Both
+              * are gated on `module:communications`, which is why the tab is
+              * only drawn when that module answers. */}
+            <NoticeboardPanel />
           </div>
         )}
 

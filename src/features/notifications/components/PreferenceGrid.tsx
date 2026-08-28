@@ -150,7 +150,7 @@ export function PreferenceGrid() {
                 <tr key={category} className="border-b border-gray-200 last:border-0">
                   <th
                     scope="row"
-                    className="whitespace-nowrap px-4 py-2 text-sm font-normal text-gray-900"
+                    className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900"
                   >
                     {label}
                   </th>

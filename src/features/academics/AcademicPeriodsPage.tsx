@@ -283,7 +283,6 @@ export function AcademicPeriodsPage() {
     <PageStack>
       <PageHeader
         title={t('periods')}
-        description={`How each ${t('session').toLowerCase()} is divided. Every register, gradebook and fee run is scoped to one.`}
         actions={
           canManage ? (
             <Button

@@ -72,7 +72,7 @@ export function GuardianDetailPage() {
     <Link
       to="/guardians"
       search={toGuardianListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
       <ArrowLeft size={12} weight="bold" />
       All {t('guardians').toLowerCase()}
@@ -144,7 +144,7 @@ export function GuardianDetailPage() {
             role="tabpanel"
             id={panelId(tabsId, active)}
             aria-labelledby={`${tabsId}-tab-${active}`}
-            className="pt-5"
+            className="pt-4"
           >
             {active === 'overview' && <GuardianOverview record={data} />}
             {active === 'children' && <GuardianChildren guardianId={guardianId} />}

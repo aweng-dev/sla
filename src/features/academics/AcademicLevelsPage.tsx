@@ -240,7 +240,6 @@ export function AcademicLevelsPage() {
     <PageStack>
       <PageHeader
         title={t('levels')}
-        description={`The rungs a ${t('learner').toLowerCase()} climbs. Classes, programmes and progression all hang off these.`}
         actions={
           canManage ? (
             <Button

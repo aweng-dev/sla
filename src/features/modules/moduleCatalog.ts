@@ -190,8 +190,8 @@ export const MODULE_CATALOG: Record<string, ModuleCatalogEntry> = {
   lms: {
     summary:
       'Learning modules, lessons and resources, learning paths, release rules and content versioning.',
-    endpoints: 0,
-    paths: [],
+    endpoints: 19,
+    paths: ['/portal/learning/modules', '/teaching/courses', '/teaching/learning-modules', '/teaching/offerings'],
   },
   learning_progress: {
     summary:

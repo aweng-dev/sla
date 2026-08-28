@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Receipt, UsersThree } from '@phosphor-icons/react'
 import { formatDate, formatDateTime, formatMoney, humanize } from '@/shared/lib/format'
@@ -40,12 +41,28 @@ import { useStudentPhoto } from './useStudentPhoto'
  * imported too, because a re-export does not bind the names locally. */
 export { Fact, Facts, Flag } from '@/shared/ui'
 import { Fact, Facts, Flag } from '@/shared/ui'
+import { StudentPhoto } from './StudentPhoto'
 
 /* ── Overview ────────────────────────────────────────────────────────────── */
 
 export function StudentOverview({ record }: { record: StudentRecord }) {
   const photo = useStudentPhoto(record.student_id, record.person.has_photo)
-  return <RecordOverview record={record} photo={photo} />
+  /* Staff get the photograph as a CONTROL — upload and remove. The portal
+   * caller below passes nothing and keeps the plain avatar, because
+   * `/admin/students/{id}/photo` is a staff route in both directions. */
+  return (
+    <RecordOverview
+      record={record}
+      photo={photo}
+      photoSlot={
+        <StudentPhoto
+          studentId={record.student_id}
+          name={record.person.full_name}
+          hasPhoto={record.person.has_photo}
+        />
+      }
+    />
+  )
 }
 
 /**
@@ -59,9 +76,13 @@ export function StudentOverview({ record }: { record: StudentRecord }) {
 export function RecordOverview({
   record,
   photo,
+  photoSlot,
 }: {
   record: StudentRecord
   photo: string | null
+  /** Supplied by the staff screen so the photograph can be changed from here.
+   *  Absent on the portal, which renders the picture and nothing more. */
+  photoSlot?: ReactNode
 }) {
   const t = useTerminology()
 
@@ -76,7 +97,7 @@ export function RecordOverview({
             centred name-and-status block this replaced was a second, louder
             header for the record the reader is already standing on. */}
         <div className="px-4 py-4">
-          <Avatar name={record.person.full_name} src={photo} size="xl" />
+          {photoSlot ?? <Avatar name={record.person.full_name} src={photo} size="xl" />}
         </div>
 
         <div className="border-t border-gray-200">

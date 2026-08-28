@@ -144,7 +144,7 @@ export function ReportDetailPage() {
         <CardBody>
           <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-gray-600">Filters</dt>
+              <dt className="text-xs font-medium text-gray-600">Filters</dt>
               <dd className="mt-1">
                 {savedFilters.length === 0 ? (
                   <span className="text-sm text-gray-700">
@@ -169,7 +169,7 @@ export function ReportDetailPage() {
             </div>
 
             <div>
-              <dt className="text-xs text-gray-600">
+              <dt className="text-xs font-medium text-gray-600">
                 Columns ({report.effective_columns.length})
               </dt>
               <dd className="mt-1">

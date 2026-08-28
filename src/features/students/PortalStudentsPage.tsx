@@ -71,9 +71,19 @@ export function PortalStudentsPage() {
 
   return (
     <PageStack>
+      {/* A list screen is a title and a row of facts, as Sprig's are. The
+          sentence this replaces said the records here are the ones linked to
+          you — which is the same claim, made in the shape of a count. */}
       <PageHeader
         title={t('learners')}
-        description={`The ${t('learners').toLowerCase()} whose records this school has linked to you.`}
+        meta={
+          rows.length > 0 ? (
+            <span>
+              <span className="tabular">{rows.length}</span>{' '}
+              {(rows.length === 1 ? t('learner') : t('learners')).toLowerCase()} linked to you
+            </span>
+          ) : undefined
+        }
       />
 
       {records.isPending ? (
@@ -126,7 +136,7 @@ export function PortalStudentDetailPage({ studentId }: { studentId: string }) {
     portal === 'guardian' ? (
       <Link
         to="/students"
-        className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
       >
         <ArrowLeft size={12} weight="bold" />
         All {t('learners').toLowerCase()}
@@ -168,7 +178,7 @@ export function PortalStudentDetailPage({ studentId }: { studentId: string }) {
                  destination is a URL, and `Button` renders a `<button>`. */
               <Link
                 to="/students"
-                className="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 transition-colors hover:bg-gray-50"
+                className="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 bg-white px-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50"
               >
                 {portal === 'guardian'
                   ? `All ${t('learners').toLowerCase()}`

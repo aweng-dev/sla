@@ -65,9 +65,12 @@ export function SettingsPage() {
      * tabs rather than a second rail, so the width has to be asked for. A form
      * field stretched to 1100px is the wrong shape for a name. */
     <PageStack className="max-w-[60rem]">
+      {/* A title alone, which is what Sprig's own Settings header is. The
+          sentence that used to sit here named the three tabs directly beneath
+          it — the tab strip says the same thing and says it in the order the
+          reader will click. */}
       <PageHeader
         title="Settings"
-        description="The institution's record, how it presents itself, and the year it is running."
         meta={
           !canManageInstitution && !canManageCalendar ? (
             <Badge tone="outline">Read-only for your access</Badge>

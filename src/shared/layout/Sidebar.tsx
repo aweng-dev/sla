@@ -4,7 +4,6 @@ import {
   Bell,
   CaretLeft,
   CaretRight,
-  MagnifyingGlass,
   CaretUpDown,
   Plus,
   Question,
@@ -181,12 +180,6 @@ export function Sidebar() {
       {/* ── Footer ────────────────────────────────────────────────────── */}
       <div className={cn('shrink-0 border-t border-gray-200 pt-2', collapsed ? 'px-2' : 'px-2')}>
         <FooterLink
-          to="/search"
-          icon={<MagnifyingGlass size={16} />}
-          label="Search"
-          collapsed={collapsed}
-        />
-        <FooterLink
           to="/notifications"
           icon={<Bell size={16} />}
           label="Notifications"
@@ -301,23 +294,22 @@ function RailToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () 
  *
  * ── Static, not an accordion ───────────────────────────────────────────────
  *
- * Sprig's grouped rail — its Settings sub-nav, which is the right reference
- * for a tree this long — shows every item at once under a plain bold heading.
- * There is no disclosure chevron, nothing collapses, and the heading is text
- * rather than a control.
+ * Sprig's grouped rail — its Settings sub-nav, which is the right reference for
+ * a tree this long — shows every item at once under a plain bold heading. There
+ * is no disclosure chevron, nothing collapses, and the heading is text rather
+ * than a control.
  *
  * An accordion was tried here and removed. It buys vertical space at the cost
  * of the one thing this rail is for: seeing what the institution has. With
- * nineteen sections closed, the reader is looking at a list of nouns and has
- * to guess which one holds the screen they want.
+ * nineteen sections shut, the reader is looking at a list of nouns and has to
+ * guess which one holds the screen they want — and every guess that misses
+ * costs two clicks instead of the one the flat rail charges. The heading also
+ * stops being readable as a heading the moment it becomes a button: it grows a
+ * chevron, a hover fill and a hit area, and then competes with the rows beneath
+ * it for the same attention.
  *
- * The counter-argument — that collapsing costs a second click — is real but
- * narrower than it looks: the section holding the CURRENT page is open on
- * arrival, so the common path (moving within the domain you are already in) is
- * still one click. Only jumping to a different domain costs the extra one, and
- * that is the trade that turns a seventy-nine-row outline back into a menu.
- * An owner holds sixty modules across nineteen domains; Sprig's own rail is
- * nine items long and needs no headings at all.
+ * Groups are separated by whitespace instead. That is what Sprig does, and it
+ * is why the gap above a heading is generous while the gap under it is not.
  *
  * A section whose items would all be hidden renders nothing at all, so the
  * whitespace never opens under an empty heading.
@@ -337,64 +329,21 @@ function Section({
   navLabel: NavLabels
   onNavigate: () => void
 }) {
-  const overrides = useUiStore((s) => s.sectionOverrides)
-  const toggleSection = useUiStore((s) => s.toggleSection)
-
   const items = section.children.filter((item) => item.route)
-  const holdsActive = items.some((item) => item.key === activeKey)
-
-  /* The reader's explicit choice wins; otherwise the section holding the
-   * current page is the one that is open. */
-  const open = overrides[section.key] ?? holdsActive
-
   if (items.length === 0) return null
 
-  /* Collapsed to the icon rail there is no heading to click, and hiding items
-   * behind one the reader cannot see would strand them. */
-  if (collapsed) {
-    return (
-      <div className={cn(first ? 'pt-1' : 'pt-2')}>
-        {!first && <div className="mx-auto my-2 h-px w-6 bg-gray-300" aria-hidden />}
-        <ul className="flex flex-col gap-0.5">
-          {items.map((item) => (
-            <NavRow
-              key={item.key}
-              item={item}
-              collapsed
-              active={item.key === activeKey}
-              navLabel={navLabel}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </ul>
-      </div>
-    )
-  }
-
   return (
-    <div className={cn(first ? 'pt-1' : 'pt-2')}>
-      <button
-        type="button"
-        onClick={() => toggleSection(section.key, !open)}
-        aria-expanded={open}
-        className="flex h-9 w-full items-center gap-1.5 rounded-md px-2 text-left text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100"
-      >
-        <CaretRight
-          size={11}
-          weight="bold"
-          className={cn(
-            'shrink-0 text-gray-500 transition-transform duration-150',
-            open && 'rotate-90',
-          )}
-        />
-        <span className="truncate">{navLabel.section(section)}</span>
-        {/* A closed section that holds the current page still says so. */}
-        {!open && holdsActive && (
-          <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" aria-hidden />
-        )}
-      </button>
+    <div className={cn(first ? 'pt-1' : 'pt-5')}>
+      {!collapsed && (
+        <p className="px-2 pb-1 text-sm font-semibold leading-5 text-gray-900">
+          {navLabel.section(section)}
+        </p>
+      )}
+      {/* Collapsed to the icon rail there is no room for a heading, so the
+       *  grouping is carried by a short rule instead. */}
+      {collapsed && !first && <div className="mx-auto my-2 h-px w-6 bg-gray-300" aria-hidden />}
 
-      <ul className={cn('flex flex-col gap-0.5 pl-3', open ? 'mt-0.5' : 'hidden')}>
+      <ul className="flex flex-col gap-0.5">
         {items.map((item) => (
           <NavRow
             key={item.key}
@@ -409,6 +358,7 @@ function Section({
     </div>
   )
 }
+
 function NavRow({
   item,
   collapsed,

@@ -29,9 +29,12 @@ export function AccountPage() {
   return (
     /* Same measured column as Settings — a name is not a 1100px field. */
     <PageStack className="max-w-[60rem]">
+      {/* Title and action, nothing else. The sentence that stood here listed
+          the three cards immediately below it, each of which already heads
+          itself — and it was written here rather than supplied by the API, so
+          there was nothing in it to keep. */}
       <PageHeader
         title="Your account"
-        description="Your details, your photo, and the institution this login belongs to."
         actions={
           <Button icon={<SignOut size={15} />} onClick={() => void signOut()}>
             Sign out

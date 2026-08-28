@@ -44,7 +44,7 @@ export function FeaturesTab() {
             {features.map((feature) => (
               <div key={feature.key} className="flex items-start justify-between gap-6 py-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-gray-900">{feature.name}</p>
+                  <p className="text-sm font-medium text-gray-900">{feature.name}</p>
                   <p className="mt-0.5 text-xs text-gray-600">{feature.description}</p>
                 </div>
                 <Switch

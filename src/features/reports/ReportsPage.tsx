@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChartBar, Export, FileText } from '@phosphor-icons/react'
 import { PageStack } from '@/shared/layout/AppShell'
 import { EmptyState, PageHeader, Tabs, panelId } from '@/shared/ui'
-import { usePermissions, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
+import { usePermissions, useTenant } from '@/features/tenant/TenantProvider'
 import { AnalyticsTab } from './AnalyticsTab'
 import { DefinitionsTab } from './DefinitionsTab'
 import { ExportsTab } from './ExportsTab'
@@ -28,7 +28,6 @@ type TabId = (typeof TAB_IDS)[number]
 
 export function ReportsPage() {
   const perms = usePermissions()
-  const t = useTerminology()
   const { access } = useTenant()
   const [tab, setTab] = useState<TabId>('analytics')
 
@@ -68,7 +67,6 @@ export function ReportsPage() {
     <PageStack>
       <PageHeader
         title="Reports and Analytics"
-        description={`How ${t('learners').toLowerCase()}, attendance, staffing and fees are moving — and the reports you can save, share and schedule.`}
         meta={
           session ? (
             <span>

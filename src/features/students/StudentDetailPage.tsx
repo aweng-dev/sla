@@ -3,6 +3,8 @@ import { Link, useParams, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
+  FirstAidKit,
+  Warning,
   GraduationCap,
   Receipt,
   Student as StudentIcon,
@@ -30,6 +32,8 @@ import {
 } from '@/shared/ui'
 import { PortalStudentDetailPage } from './PortalStudentsPage'
 import { studentsApi } from './students.api'
+import { StudentActions } from './StudentActions'
+import { StudentConductPanel, StudentHealthPanel } from './StudentPastoral'
 import {
   StudentAcademic,
   StudentFinance,
@@ -112,6 +116,15 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
   if (modules.has('finance') && perms.has('finance.view')) {
     tabs.push({ key: 'finance', label: 'Finance', icon: <Receipt size={14} /> })
   }
+  /* Conduct and health are separate surfaces behind their own modules —
+   * `/discipline/*` and `/health/*` — and each 403s without its permission,
+   * so neither tab is drawn unless this reader can actually load it. */
+  if (modules.has('discipline') && perms.has('discipline.view')) {
+    tabs.push({ key: 'conduct', label: 'Conduct', icon: <Warning size={14} /> })
+  }
+  if (modules.has('health_clinic') && perms.has('health_clinic.view')) {
+    tabs.push({ key: 'health', label: 'Health', icon: <FirstAidKit size={14} /> })
+  }
 
   const [tab, setTab] = useState('overview')
   const active = tabs.some((item) => item.key === tab) ? tab : 'overview'
@@ -120,7 +133,7 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
     <Link
       to="/students"
       search={toStudentListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
       <ArrowLeft size={12} weight="bold" />
       All {t('learners').toLowerCase()}
@@ -172,6 +185,7 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
             <Skeleton className="h-3 w-64" />
           )
         }
+        actions={data ? <StudentActions student={data} /> : undefined}
       />
 
       <div className="flex flex-col gap-4">
@@ -188,6 +202,8 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
           {data && active === 'academic' && <StudentAcademic studentId={data.student_id} />}
           {data && active === 'guardians' && <StudentGuardians studentId={data.student_id} />}
           {data && active === 'finance' && <StudentFinance studentId={data.student_id} />}
+          {data && active === 'conduct' && <StudentConductPanel studentId={data.student_id} />}
+          {data && active === 'health' && <StudentHealthPanel studentId={data.student_id} />}
         </div>
       </div>
     </PageStack>

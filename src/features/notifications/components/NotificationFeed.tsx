@@ -227,7 +227,7 @@ function DayRule({ label, first }: { label: string; first?: boolean }) {
   return (
     <div className={cn('flex items-center gap-3 px-2 pb-1.5', first ? 'pt-2.5' : 'pt-5')}>
       <span className="h-px flex-1 bg-gray-200" aria-hidden />
-      <span className="shrink-0 text-2xs text-gray-500">{label}</span>
+      <span className="shrink-0 text-2xs font-medium text-gray-500">{label}</span>
       <span className="h-px flex-1 bg-gray-200" aria-hidden />
     </div>
   )

@@ -11,7 +11,7 @@ import { formatDate, humanize } from '@/shared/lib/format'
 function FactRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
-      <dt className="shrink-0 text-xs text-gray-600">{label}</dt>
+      <dt className="shrink-0 text-xs font-medium text-gray-600">{label}</dt>
       <dd className="min-w-0 truncate text-right text-sm text-gray-900">{children}</dd>
     </div>
   )

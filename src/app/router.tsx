@@ -175,6 +175,77 @@ const enrollmentRoute = createRoute({
   ),
 })
 
+const institutionStructureRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/institution-structure',
+  component: lazyRouteComponent(
+    () => import('@/features/academics/InstitutionStructurePage'),
+    'InstitutionStructurePage',
+  ),
+})
+
+const academicCalendarRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/academic-calendar',
+  component: lazyRouteComponent(
+    () => import('@/features/academics/AcademicCalendarPage'),
+    'AcademicCalendarPage',
+  ),
+})
+
+const curriculumRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/curriculum',
+  component: lazyRouteComponent(
+    () => import('@/features/academics/CurriculumPage'),
+    'CurriculumPage',
+  ),
+})
+
+/**
+ * ── Learning ──────────────────────────────────────────────────────────────
+ *
+ * Only `assignments` and `discussions` are here. `lms` and `learning-progress`
+ * appear in the navigation tree but gate NO routes in the API — nothing in
+ * `routes/api/` is registered behind `module:lms` or `module:learning_progress`
+ * — so they keep falling through to the module scaffold, which says so
+ * honestly, rather than getting a screen with nothing behind it.
+ */
+const assignmentsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/assignments',
+  component: lazyRouteComponent(
+    () => import('@/features/learning/AssignmentsPage'),
+    'AssignmentsPage',
+  ),
+})
+
+const assignmentDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/assignments/$assignmentId',
+  component: lazyRouteComponent(
+    () => import('@/features/learning/AssignmentDetailPage'),
+    'AssignmentDetailPage',
+  ),
+})
+
+const discussionsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/discussions',
+  component: lazyRouteComponent(
+    () => import('@/features/learning/DiscussionsPage'),
+    'DiscussionsPage',
+  ),
+})
+
+/* The rail's "Audit and Security" item. Read-only: the API exposes no write
+ * verb on the trail, and this route mounts nothing that could invent one. */
+const securityRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/audit-security',
+  component: lazyRouteComponent(() => import('@/features/security/SecurityPage'), 'SecurityPage'),
+})
+
 const accountRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/account',
@@ -187,16 +258,84 @@ const settingsRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/settings/SettingsPage'), 'SettingsPage'),
 })
 
+const communicationsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/communications',
+  component: lazyRouteComponent(
+    () => import('@/features/communications/CommunicationsPage'),
+    'CommunicationsPage',
+  ),
+})
+
+/* ── Learning ────────────────────────────────────────────────────────────── */
+
+/* The API kebab-cases the module id for the nav route, and the module id is
+ * `lms` — so the rail's "Lessons" item points here. */
+const lessonsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/lms',
+  component: lazyRouteComponent(() => import('@/features/lessons/LessonsPage'), 'LessonsPage'),
+})
+
+/* ── Admissions ──────────────────────────────────────────────────────────── */
+
+const admissionsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/admissions',
+  component: lazyRouteComponent(
+    () => import('@/features/admissions/AdmissionsPage'),
+    'AdmissionsPage',
+  ),
+})
+
+/* An admissions file gets passed between people, so it has its own address. */
+const applicationDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/admissions/$applicationId',
+  component: lazyRouteComponent(
+    () => import('@/features/admissions/ApplicationDetailPage'),
+    'ApplicationDetailPage',
+  ),
+})
+
+/* ── Operations ──────────────────────────────────────────────────────────── */
+
+const libraryRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/library',
+  component: lazyRouteComponent(
+    () => import('@/features/operations/LibraryPage'),
+    'LibraryPage',
+  ),
+})
+
+const hostelRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/hostel',
+  component: lazyRouteComponent(() => import('@/features/operations/HostelPage'), 'HostelPage'),
+})
+
+const transportRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/transport',
+  component: lazyRouteComponent(
+    () => import('@/features/operations/TransportPage'),
+    'TransportPage',
+  ),
+})
+
+/* The API's navigation kebab-cases the module id, so the rail's Assets item
+ * points here rather than at `/assets`. */
+const assetsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/assets-inventory',
+  component: lazyRouteComponent(() => import('@/features/operations/AssetsPage'), 'AssetsPage'),
+})
+
 const notificationsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/notifications',
   component: lazyRouteComponent(() => import('@/features/notifications/NotificationsPage'), 'NotificationsPage'),
-})
-
-const searchRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/search',
-  component: lazyRouteComponent(() => import('@/features/search/SearchPage'), 'SearchPage'),
 })
 
 const helpRoute = createRoute({
@@ -240,6 +379,130 @@ const reportDetailRoute = createRoute({
   ),
 })
 
+/**
+ * Assessment — the question bank.
+ *
+ * The pages existed but nothing routed to them, so their `Link`s pointed at a
+ * path TanStack did not know and the build failed on it. Wiring them is what
+ * finishes the feature rather than discarding it.
+ */
+/* The umbrella. `module:assessments` gates no endpoints, so this is a hub
+ * over the surfaces that do — see AssessmentPage for the full reasoning. */
+const assessmentRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/assessments',
+  component: lazyRouteComponent(
+    () => import('@/features/assessment/AssessmentPage'),
+    'AssessmentPage',
+  ),
+})
+
+const questionBankRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/question-bank',
+  component: lazyRouteComponent(
+    () => import('@/features/assessment/QuestionBanksPage'),
+    'QuestionBanksPage',
+  ),
+})
+
+const questionBankDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/question-bank/$bankId',
+  component: lazyRouteComponent(
+    () => import('@/features/assessment/QuestionBankDetailPage'),
+    'QuestionBankDetailPage',
+  ),
+})
+
+/**
+ * Finance.
+ *
+ * `/finance` is the module the API's navigation calls "Student Finance". The
+ * two detail routes sit under it rather than at the top level because an
+ * invoice and a payment are only ever reached from there, and a nested path
+ * keeps the rail's longest-prefix match lighting Finance on both.
+ */
+const financeRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/finance',
+  component: lazyRouteComponent(() => import('@/features/finance/FinancePage'), 'FinancePage'),
+})
+
+const invoiceDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/finance/invoices/$invoiceId',
+  component: lazyRouteComponent(
+    () => import('@/features/finance/InvoiceDetailPage'),
+    'InvoiceDetailPage',
+  ),
+})
+
+const paymentDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/finance/payments/$paymentId',
+  component: lazyRouteComponent(
+    () => import('@/features/finance/PaymentDetailPage'),
+    'PaymentDetailPage',
+  ),
+})
+
+/* Staff and HR. The pages existed but nothing routed to them. */
+const staffRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/staff',
+  component: lazyRouteComponent(() => import('@/features/hr/StaffPage'), 'StaffPage'),
+})
+
+const staffDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/staff/$staffId',
+  component: lazyRouteComponent(() => import('@/features/hr/StaffDetailPage'), 'StaffDetailPage'),
+})
+
+const hrRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/hr',
+  component: lazyRouteComponent(() => import('@/features/hr/HrPage'), 'HrPage'),
+})
+
+const payrollRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/payroll',
+  component: lazyRouteComponent(() => import('@/features/hr/PayrollPage'), 'PayrollPage'),
+})
+
+/**
+ * Identity — who exists, and what they may reach.
+ *
+ * Two nav items, two screens: `authentication` is the people, `rbac` is the
+ * roles and the permission catalogue they draw on. They share a feature
+ * directory because a grant is meaningless without the catalogue that names it.
+ */
+const authenticationRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/authentication',
+  component: lazyRouteComponent(() => import('@/features/identity/UsersPage'), 'UsersPage'),
+})
+
+const userDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/authentication/$userId',
+  component: lazyRouteComponent(() => import('@/features/identity/UserAccessPage'), 'UserAccessPage'),
+})
+
+const rbacRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/rbac',
+  component: lazyRouteComponent(() => import('@/features/identity/RolesPage'), 'RolesPage'),
+})
+
+const roleDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/rbac/$roleId',
+  component: lazyRouteComponent(() => import('@/features/identity/RoleDetailPage'), 'RoleDetailPage'),
+})
+
 const moduleRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/$module',
@@ -261,15 +524,43 @@ export const routeTree = rootRoute.addChildren([
     learningGroupsRoute,
     courseOfferingsRoute,
     enrollmentRoute,
+    institutionStructureRoute,
+    academicCalendarRoute,
+    curriculumRoute,
+    assignmentsRoute,
+    assignmentDetailRoute,
+    discussionsRoute,
     guardiansRoute,
     guardianDetailRoute,
+    securityRoute,
     accountRoute,
     settingsRoute,
     notificationsRoute,
-    searchRoute,
+    communicationsRoute,
+    lessonsRoute,
+    admissionsRoute,
+    applicationDetailRoute,
+    libraryRoute,
+    hostelRoute,
+    transportRoute,
+    assetsRoute,
     helpRoute,
     reportsRoute,
     reportDetailRoute,
+    assessmentRoute,
+    questionBankRoute,
+    questionBankDetailRoute,
+    financeRoute,
+    invoiceDetailRoute,
+    paymentDetailRoute,
+    staffRoute,
+    staffDetailRoute,
+    hrRoute,
+    payrollRoute,
+    authenticationRoute,
+    userDetailRoute,
+    rbacRoute,
+    roleDetailRoute,
     moduleRoute,
   ]),
 ])

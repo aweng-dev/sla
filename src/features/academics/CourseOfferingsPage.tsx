@@ -37,7 +37,7 @@ import {
   usePeriodCatalog,
   useSessionCatalog,
 } from './components/pickers'
-import { useDebounced } from './components/useDebounced'
+import { useDebounced } from '@/shared/lib/useDebounced'
 import {
   DELIVERY_MODES,
   OFFERING_STATUSES,
@@ -264,7 +264,6 @@ export function CourseOfferingsPage() {
     <PageStack>
       <PageHeader
         title="Course offerings"
-        description={`Each ${t('course').toLowerCase()} as it is actually taught — to one ${t('group').toLowerCase()}, in one ${t('period').toLowerCase()}, by named staff.`}
         actions={
           canManage ? (
             <Button

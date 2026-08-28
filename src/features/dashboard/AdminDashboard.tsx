@@ -245,7 +245,7 @@ function StatusBars({ byStatus }: { byStatus: Record<string, number> }) {
       {rows.map(([key, value], index) => (
         <li key={key}>
           <div className="flex items-baseline justify-between gap-3 text-xs">
-            <span className="min-w-0 truncate text-gray-900">{humanize(key)}</span>
+            <span className="min-w-0 truncate font-medium text-gray-900">{humanize(key)}</span>
             <span className="shrink-0 text-gray-600">{formatNumber(value)}</span>
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">

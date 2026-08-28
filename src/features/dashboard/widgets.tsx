@@ -96,7 +96,10 @@ export function CardNote({ children }: { children: ReactNode }) {
 export function MiniStat({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-xs text-gray-600">{label}</p>
+      {/* A caption for a figure carries weight in Sprig — `StatTile` sets its
+          own label medium, and a row of these beside one should not read a
+          step lighter than the tiles above it. */}
+      <p className="truncate text-xs font-medium text-gray-600">{label}</p>
       <p className="mt-0.5 truncate text-sm font-semibold text-gray-900 tabular">{value}</p>
     </div>
   )
@@ -114,7 +117,7 @@ export function Figure({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <span className="text-xs text-gray-600">{label}</span>
+      <span className="text-xs font-medium text-gray-600">{label}</span>
       <span
         className={cn(
           'shrink-0 tabular',
@@ -224,15 +227,49 @@ export function PanelState({
  * correctly but warns on every render: the router resolves the generated path
  * back to the static route and says so. Naming the template that will actually
  * match keeps the console clean and the intent explicit.
+ *
+ * ── Keep this in step with `app/router.tsx` ────────────────────────────────
+ *
+ * Every entry here is a static path the router declares. A screen added there
+ * and not added here still works — it just goes back to warning on every
+ * render, which is how this map fell six routes behind in the first place.
  */
 const DEDICATED_ROUTES = {
-  dashboard: '/dashboard',
-  students: '/students',
+  'academic-calendar': '/academic-calendar',
+  'academic-levels': '/academic-levels',
+  'academic-periods': '/academic-periods',
+  'academic-sessions': '/academic-sessions',
   account: '/account',
-  settings: '/settings',
-  notifications: '/notifications',
-  search: '/search',
+  admissions: '/admissions',
+  assessments: '/assessments',
+  'assets-inventory': '/assets-inventory',
+  assignments: '/assignments',
+  authentication: '/authentication',
+  communications: '/communications',
+  'course-offerings': '/course-offerings',
+  courses: '/courses',
+  curriculum: '/curriculum',
+  dashboard: '/dashboard',
+  discussions: '/discussions',
+  enrollment: '/enrollment',
+  finance: '/finance',
+  guardians: '/guardians',
   help: '/help',
+  hostel: '/hostel',
+  hr: '/hr',
+  'institution-structure': '/institution-structure',
+  'learning-groups': '/learning-groups',
+  library: '/library',
+  notifications: '/notifications',
+  payroll: '/payroll',
+  programs: '/programs',
+  'question-bank': '/question-bank',
+  rbac: '/rbac',
+  reports: '/reports',
+  settings: '/settings',
+  staff: '/staff',
+  students: '/students',
+  transport: '/transport',
 } as const
 
 /** A link to a module, addressed by the route segment the API gave us. */
@@ -292,7 +329,7 @@ export function QuickLinks({ items }: { items: NavigationItem[] }) {
               size={15}
               className="shrink-0 text-gray-500"
             />
-            <span className="truncate text-sm">{item.label}</span>
+            <span className="truncate text-sm font-medium">{item.label}</span>
           </ModuleLink>
         ))}
       </CardBody>

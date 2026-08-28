@@ -4,10 +4,21 @@ import { cn } from '@/shared/lib/cn'
 /**
  * The title block at the top of every screen.
  *
- * Sprig's is quiet: a 20px semibold title, an optional muted line under it,
- * and actions on the right. No breadcrumb bar, no coloured banner, no icon
- * beside the title on a list screen — the icon appears only on a detail screen,
- * where it carries the entity's identity.
+ * Sprig's title is BOLD — measured off its own captures, where the entity
+ * title is visibly heavier than a section heading — and the block is TIGHT:
+ * the title, then immediately either a row of facts or the tabs. No
+ * breadcrumb bar, no coloured banner, and no icon beside the title on a list
+ * screen; the icon appears only on a detail screen, where it carries the
+ * entity's identity.
+ *
+ * ── `description` is for a screen that genuinely needs a sentence ──────────
+ *
+ * Sprig uses none at all: its list pages are a title, and its entity pages a
+ * title plus a compact meta row with inline icons. A prose line under every
+ * title is what made these headers three stacked lines where Sprig has two,
+ * and it is the single biggest reason the chrome read as a different product.
+ * Prefer `meta`. Reach for `description` only where the screen would be
+ * genuinely unclear without it.
  */
 export function PageHeader({
   title,
@@ -31,12 +42,12 @@ export function PageHeader({
       <div className="flex min-w-0 items-start gap-3">
         {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold tracking-[-0.01em] text-gray-900">
+          <h1 className="truncate text-xl font-bold tracking-[-0.015em] text-gray-900">
             {title}
           </h1>
-          {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
+          {description && <p className="mt-0.5 text-sm text-gray-600">{description}</p>}
           {meta && (
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600">
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-gray-600">
               {meta}
             </div>
           )}

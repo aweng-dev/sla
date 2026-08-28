@@ -348,7 +348,6 @@ export function AcademicSessionsPage() {
     <PageStack>
       <PageHeader
         title={t('sessions')}
-        description={`The academic years this institution runs, and which one is current.`}
         actions={
           canManage ? (
             <Button

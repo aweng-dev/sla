@@ -9,11 +9,16 @@ import { cn } from '@/shared/lib/cn'
  * Both halves are 13px. Sprig sets a caption in grey and the value it captions
  * in ink at the SAME size, so the two sit on one baseline; the earlier 12px
  * label against a 13px value left every row very slightly out of true.
+ *
+ * The label is medium and the value regular. Measured off Sprig's own Study
+ * Details panel: the key column is the heavier of the two and colour separates
+ * them a second time. A key/value list where the key is grey AND light reads as
+ * two columns of body copy.
  */
 export function FactRow({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-1.5">
-      <dt className="shrink-0 text-sm text-gray-600">{label}</dt>
+      <dt className="shrink-0 text-sm font-medium text-gray-600">{label}</dt>
       <dd className="min-w-0 truncate text-right text-sm text-gray-900">{children}</dd>
     </div>
   )

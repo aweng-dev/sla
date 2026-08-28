@@ -79,5 +79,5 @@ export function AppShell({ children }: { children: ReactNode }) {
 /** Vertical rhythm for a page's own blocks. Screens use this rather than
  *  choosing their own gap, so two lists written a month apart line up. */
 export function PageStack({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('flex flex-col gap-5', className)}>{children}</div>
+  return <div className={cn('flex flex-col gap-4', className)}>{children}</div>
 }

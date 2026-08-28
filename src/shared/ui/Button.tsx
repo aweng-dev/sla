@@ -22,7 +22,7 @@ type Size = 'sm' | 'md' | 'lg' | 'icon'
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-brand-400 text-gray-900 hover:bg-brand-500 active:bg-brand-600 disabled:bg-brand-200 disabled:text-gray-500 font-medium',
+    'bg-brand-400 text-gray-900 hover:bg-brand-500 active:bg-brand-600 disabled:bg-brand-200 disabled:text-gray-500',
   secondary:
     'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 active:bg-gray-100 disabled:text-gray-500 disabled:bg-white',
   ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 active:bg-gray-200 disabled:text-gray-400',
@@ -73,7 +73,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       className={cn(
         'inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap',
-        'transition-colors duration-100',
+        /* Medium on every variant. Sprig sets its button labels heavier than
+         * body text throughout, and a regular-weight secondary sitting beside
+         * a medium primary reads as the disabled one. */
+        'font-medium transition-colors duration-100',
         'disabled:cursor-not-allowed',
         VARIANTS[variant],
         SIZES[size],

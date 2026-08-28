@@ -17,17 +17,7 @@ interface UiState {
    *  a drawer left open across a reload is a bug, not a preference. */
   mobileNavOpen: boolean
   commandOpen: boolean
-  /**
-   * Sections the reader has explicitly opened or closed.
-   *
-   * Absent means "decide for me" — the rail opens whichever section holds the
-   * current page and leaves the rest shut. Only an explicit click is recorded,
-   * so a stored preference never fights the automatic behaviour for a section
-   * the reader has expressed no opinion about.
-   */
-  sectionOverrides: Record<string, boolean>
   toggleRail: () => void
-  toggleSection: (key: string, open: boolean) => void
   setRailCollapsed: (collapsed: boolean) => void
   setMobileNavOpen: (open: boolean) => void
   setCommandOpen: (open: boolean) => void
@@ -39,21 +29,15 @@ export const useUiStore = create<UiState>()(
       railCollapsed: false,
       mobileNavOpen: false,
       commandOpen: false,
-      sectionOverrides: {},
 
       toggleRail: () => set((s) => ({ railCollapsed: !s.railCollapsed })),
-      toggleSection: (key, open) =>
-        set((s) => ({ sectionOverrides: { ...s.sectionOverrides, [key]: open } })),
       setRailCollapsed: (railCollapsed) => set({ railCollapsed }),
       setMobileNavOpen: (mobileNavOpen) => set({ mobileNavOpen }),
       setCommandOpen: (commandOpen) => set({ commandOpen }),
     }),
     {
       name: 'schoollink.ui',
-      partialize: (s) => ({
-        railCollapsed: s.railCollapsed,
-        sectionOverrides: s.sectionOverrides,
-      }),
+      partialize: (s) => ({ railCollapsed: s.railCollapsed }),
     },
   ),
 )

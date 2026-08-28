@@ -123,7 +123,7 @@ export function ChartLegend({
             aria-hidden
           />
           <span className="shrink-0 font-medium text-gray-900 tabular">{item.value}</span>
-          <span className="min-w-0 truncate text-gray-600">{item.label}</span>
+          <span className="min-w-0 truncate font-medium text-gray-600">{item.label}</span>
         </li>
       ))}
     </ul>

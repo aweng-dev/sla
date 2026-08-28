@@ -38,7 +38,7 @@ import {
   useProgramCatalog,
   useSessionCatalog,
 } from './components/pickers'
-import { useDebounced } from './components/useDebounced'
+import { useDebounced } from '@/shared/lib/useDebounced'
 import { ENROLLMENT_STATUSES, type SessionEnrollment } from './academics.types'
 
 /**
@@ -256,7 +256,6 @@ export function EnrollmentPage() {
     <PageStack>
       <PageHeader
         title="Enrolment"
-        description={`Who is on the roll this ${t('session').toLowerCase()}, and where each of them sits.`}
         actions={
           canManage ? (
             <Button

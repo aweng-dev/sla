@@ -205,7 +205,7 @@ export function PortalRecordCard({ record }: { record: PortalStudentRecord }) {
         <Link
           to="/students/$studentId"
           params={{ studentId: record.student_id }}
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/40"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/40"
         >
           Open record
           <ArrowRight size={13} weight="bold" className="text-gray-600" />
