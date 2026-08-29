@@ -251,7 +251,7 @@ export function ProgramsPage() {
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => open(null)}
             >
               New {t('programme').toLowerCase()}

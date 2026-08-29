@@ -19,7 +19,7 @@ export function Facts({ children }: { children: ReactNode }) {
 
 export function Fact({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 px-4 py-2">
+    <div className="flex items-baseline justify-between gap-4 px-5 py-2.5">
       <dt className="shrink-0 text-sm text-gray-600">{label}</dt>
       <dd className="min-w-0 text-right text-sm text-gray-900">{children}</dd>
     </div>

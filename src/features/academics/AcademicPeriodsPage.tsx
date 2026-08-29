@@ -69,7 +69,13 @@ const schema = z
 
 type PeriodValues = z.infer<typeof schema>
 
-export function AcademicPeriodsPage() {
+/**
+ * `embedded` renders this inside Settings, which supplies the page title and
+ * the description itself — so the screen drops its own `PageHeader` and keeps
+ * only the action that belongs to it. It is the same component either way;
+ * there is no second implementation for the settings copy to drift from.
+ */
+export function AcademicPeriodsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const t = useTerminology()
   const perms = usePermissions()
   const { access } = useTenant()
@@ -280,21 +286,33 @@ export function AcademicPeriodsPage() {
   )
 
   return (
-    <PageStack>
+    <PageStack className={embedded ? 'gap-4' : undefined}>
+      {embedded ? (
+        <div className="-mt-1 flex justify-end">{canManage ? (
+            <Button
+              variant="primary"
+              trailing={<Plus size={16} weight="bold" />}
+              onClick={() => open(null)}
+            >
+              New {t('period').toLowerCase()}
+            </Button>
+          ) : undefined}</div>
+      ) : (
       <PageHeader
         title={t('periods')}
         actions={
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => open(null)}
             >
               New {t('period').toLowerCase()}
             </Button>
           ) : undefined
         }
-      />
+        />
+      )}
 
       <Toolbar
         filters={

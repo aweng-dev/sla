@@ -1,100 +1,150 @@
-import { useState } from 'react'
-import { Buildings, CalendarBlank, Palette, ToggleRight } from '@phosphor-icons/react'
+import { Link, useParams } from '@tanstack/react-router'
+import { cn } from '@/shared/lib/cn'
 import { PageStack } from '@/shared/layout/AppShell'
-import { Badge, PageHeader, Tabs, panelId, type TabItem } from '@/shared/ui'
-import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
-import { BrandingTab } from './tabs/BrandingTab'
-import { CalendarTab } from './tabs/CalendarTab'
-import { FeaturesTab } from './tabs/FeaturesTab'
+import { usePermissions, useModules, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
+import { Badge, EmptyState, PageHeader } from '@/shared/ui'
 import { InstitutionTab } from './tabs/InstitutionTab'
+import { BrandingTab } from './tabs/BrandingTab'
+import { FeaturesTab } from './tabs/FeaturesTab'
+import { InstitutionStructurePage } from '@/features/academics/InstitutionStructurePage'
+import { AcademicSessionsPage } from '@/features/academics/AcademicSessionsPage'
+import { AcademicPeriodsPage } from '@/features/academics/AcademicPeriodsPage'
+import {
+  DEFAULT_SETTINGS_SECTION,
+  SETTINGS_GROUPS,
+  SETTINGS_SECTIONS,
+  type SettingsSection,
+} from './sections'
 
 /**
- * The institution's settings — and only what the API actually answers.
+ * Settings, laid out the way Sprig lays its own out.
  *
- * ── There is no `/admin/settings` ──────────────────────────────────────────
+ * ── Why a sub-nav and not tabs ─────────────────────────────────────────────
  *
- * Probing it returns `ENDPOINT_NOT_FOUND`. Settings are not one resource: the
- * record is `/admin/institution`, the plan is `/admin/features`, the academic
- * year is `/admin/academic-sessions`. This screen gathers them into one place,
- * which is what a settings screen is for; the API deliberately keeps them
- * apart, because folding four lifecycles into one PUT makes an endpoint that
- * half-succeeds.
+ * Tabs worked at four sections. There are now seven across two groups, and a
+ * row of seven underline tabs is a row nobody scans — Sprig hit the same wall
+ * and answered it with a left column of grouped links: a bold heading per
+ * group, quiet items beneath, and a light pill on the active one. It is the
+ * same control the rail uses, one level down.
  *
- * ── Permissions decide what is drawn, not what is allowed ──────────────────
+ * ── The academic sections are the real screens ─────────────────────────────
  *
- * `multi_tenancy.view` opens the institution record and the plan;
- * `multi_tenancy.manage` opens the writes on it; the calendar is its own pair
- * under `academic_sessions.*` and `academic_periods.*`. A reader holding none
- * of them still sees the same facts — the tenant profile and the current
- * Session and Period reach every signed-in person through `GET /portal/context`
- * — so the screen degrades to read-only rather than to a permissions error.
- *
- * The Plan tab is the exception and is not drawn at all without
- * `multi_tenancy.view`: its endpoint is the only source for those facts, so
- * there is nothing honest to put in it.
+ * Structure, Sessions, Periods and Year groups are not simplified copies for
+ * Settings — they are the same components the rail used to link to, rendered
+ * with `embedded` so they drop their page title and inherit this one. There is
+ * no second implementation to drift, and moving them cost no functionality:
+ * creating a session, making one current, reordering the ladder all still work
+ * exactly where they did.
  */
-
-/** Stable rather than a `useId()` fallback, so the ids a tab points at are the
- *  same string a test or a screen reader saw a render ago. There is only ever
- *  one settings tablist on the page. */
-const TABS_ID = 'settings-tabs'
-
 export function SettingsPage() {
   const t = useTerminology()
   const perms = usePermissions()
+  const modules = useModules()
+  const { tenant } = useTenant()
 
-  const canViewInstitution = perms.has('multi_tenancy.view')
-  const canManageInstitution = perms.has('multi_tenancy.manage')
-  const canManageCalendar = perms.hasAny('academic_sessions.manage', 'academic_periods.manage')
+  const params = useParams({ strict: false }) as { section?: string }
+  const requested = params.section ?? DEFAULT_SETTINGS_SECTION
 
-  const tabs: TabItem[] = [
-    { key: 'institution', label: 'Institution', icon: <Buildings size={14} /> },
-    { key: 'branding', label: 'Branding', icon: <Palette size={14} /> },
-    { key: 'calendar', label: t('sessions'), icon: <CalendarBlank size={14} /> },
-    ...(canViewInstitution
-      ? [{ key: 'features', label: 'Plan', icon: <ToggleRight size={14} /> }]
-      : []),
-  ]
+  /** A section is offered only when its module is on AND its permission is
+   *  held — the same two gates the rail applied before Settings adopted it. */
+  function reachable(section: SettingsSection): boolean {
+    if (section.moduleId && !modules.has(section.moduleId)) return false
+    if (section.permission && !perms.has(section.permission)) return false
+    return true
+  }
 
-  const [tab, setTab] = useState('institution')
+  function labelFor(section: SettingsSection): string {
+    return typeof section.label === 'string' ? section.label : t(section.label.term)
+  }
+
+  const groups = SETTINGS_GROUPS.map((group) => ({
+    ...group,
+    sections: group.sections.filter(reachable),
+  })).filter((group) => group.sections.length > 0)
+
+  const available = SETTINGS_SECTIONS.filter(reachable)
+  const active =
+    available.find((section) => section.key === requested) ?? available[0] ?? null
 
   return (
-    /* Sprig's Settings is a measured column, not the full canvas: a settings
-     * sub-nav takes the left third of its content area and the cards fill what
-     * is left — roughly 900px at this window. This app navigates settings with
-     * tabs rather than a second rail, so the width has to be asked for. A form
-     * field stretched to 1100px is the wrong shape for a name. */
-    <PageStack className="max-w-[60rem]">
-      {/* A title alone, which is what Sprig's own Settings header is. The
-          sentence that used to sit here named the three tabs directly beneath
-          it — the tab strip says the same thing and says it in the order the
-          reader will click. */}
+    <PageStack>
       <PageHeader
         title="Settings"
-        meta={
-          !canManageInstitution && !canManageCalendar ? (
-            <Badge tone="outline">Read-only for your access</Badge>
-          ) : undefined
-        }
+        description={`How ${tenant.name} is set up.`}
+        actions={tenant.status !== 'active' ? <Badge tone="warning">{tenant.status}</Badge> : undefined}
       />
 
-      <Tabs items={tabs} value={tab} onChange={setTab} baseId={TABS_ID} />
+      <div className="grid gap-6 lg:grid-cols-[13rem_1fr]">
+        <nav aria-label="Settings" className="lg:sticky lg:top-0 lg:self-start">
+          {groups.map((group, index) => (
+            <div key={group.key} className={index === 0 ? '' : 'pt-5'}>
+              <p className="px-2.5 pb-1.5 text-sm font-bold leading-5 text-gray-900">
+                {group.label}
+              </p>
+              <ul className="flex flex-col gap-0.5">
+                {group.sections.map((section) => {
+                  const current = section.key === active?.key
+                  return (
+                    <li key={section.key}>
+                      <Link
+                        to="/settings/$section"
+                        params={{ section: section.key }}
+                        aria-current={current ? 'page' : undefined}
+                        className={cn(
+                          'flex h-8 items-center rounded-md px-2.5 text-[0.8125rem] leading-5 transition-colors',
+                          current
+                            ? 'bg-rail-active font-semibold text-gray-900'
+                            : 'font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+                        )}
+                      >
+                        {labelFor(section)}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
 
-      {/* The panel half of the tablist contract: `Tabs` points every tab at
-          `panelId(TABS_ID, key)`, so exactly one element has to carry that id
-          and name the tab it belongs to. Only the active tab's body is
-          mounted, so the id moves with the selection rather than four panels
-          existing with three of them hidden. */}
-      <div
-        role="tabpanel"
-        id={panelId(TABS_ID, tab)}
-        aria-labelledby={`${TABS_ID}-tab-${tab}`}
-      >
-        {tab === 'institution' && <InstitutionTab />}
-        {tab === 'branding' && <BrandingTab />}
-        {tab === 'calendar' && <CalendarTab />}
-        {tab === 'features' && canViewInstitution && <FeaturesTab />}
+        <div className="min-w-0">
+          {active === null ? (
+            <EmptyState
+              title="Nothing to configure"
+              description="You do not have access to any settings for this institution."
+            />
+          ) : (
+            <section aria-label={labelFor(active)} className="flex flex-col gap-4">
+              <div>
+                <h2 className="text-md font-semibold text-gray-900">{labelFor(active)}</h2>
+                <p className="mt-0.5 text-sm text-gray-600">{active.description}</p>
+              </div>
+              <SectionBody section={active.key} />
+            </section>
+          )}
+        </div>
       </div>
     </PageStack>
   )
+}
+
+/** The academic sections are the rail's own screens, rendered without their
+ *  page title. Nothing is reimplemented here. */
+function SectionBody({ section }: { section: string }) {
+  switch (section) {
+    case 'institution':
+      return <InstitutionTab />
+    case 'branding':
+      return <BrandingTab />
+    case 'plan':
+      return <FeaturesTab />
+    case 'structure':
+      return <InstitutionStructurePage embedded />
+    case 'sessions':
+      return <AcademicSessionsPage embedded />
+    case 'periods':
+      return <AcademicPeriodsPage embedded />
+    default:
+      return null
+  }
 }

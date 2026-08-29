@@ -11,7 +11,7 @@ export const Textarea = forwardRef<
       rows={rows}
       aria-invalid={invalid || undefined}
       className={cn(
-        'w-full rounded-md border bg-white px-2.5 py-2 text-sm text-gray-900',
+        'w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900',
         'placeholder:text-gray-500',
         'transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30',
         'disabled:cursor-not-allowed disabled:bg-gray-50',

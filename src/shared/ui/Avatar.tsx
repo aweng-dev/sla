@@ -26,9 +26,9 @@ const TINTS = [
 ] as const
 
 const SIZES = {
-  xs: 'h-4 w-4 text-[8px]',
-  sm: 'h-5 w-5 text-[9px]',
-  md: 'h-6 w-6 text-[10px]',
+  xs: 'h-5 w-5 text-[9px]',
+  sm: 'h-6 w-6 text-[10px]',
+  md: 'h-7 w-7 text-[11px]',
   lg: 'h-9 w-9 text-xs',
   xl: 'h-16 w-16 text-lg',
 } as const

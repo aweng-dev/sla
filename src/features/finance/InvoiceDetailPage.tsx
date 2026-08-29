@@ -132,7 +132,7 @@ export function InvoiceDetailPage() {
               {invoice.is_settleable && (
                 <Button
                   variant="primary"
-                  icon={<Plus size={13} weight="bold" />}
+                  trailing={<Plus size={16} weight="bold" />}
                   onClick={() => setPaying(true)}
                 >
                   Record payment
@@ -329,9 +329,9 @@ function Back() {
   return (
     <Link
       to="/finance"
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       Finance
     </Link>
   )

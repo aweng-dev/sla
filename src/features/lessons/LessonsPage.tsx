@@ -31,8 +31,9 @@ import { cn } from '@/shared/lib/cn'
 import { ApiError } from '@/shared/api/envelope'
 import { formatNumber } from '@/shared/lib/format'
 import { useDebounced } from '@/shared/lib/useDebounced'
-import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
-import { ModuleGate } from '@/features/operations/components/ModuleGate'
+import { usePermissions, useTerminology, useViewer } from '@/features/tenant/TenantProvider'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
+import { MyLessons } from '@/features/portal/components/MyLessons'
 import { LessonDialog } from './components/LessonDialog'
 import { UnitDialog } from './components/UnitDialog'
 import {
@@ -68,16 +69,29 @@ import {
 
 export function LessonsPage() {
   const t = useTerminology()
+  const viewer = useViewer()
+
+  /*
+   * `lms` lists `student_self` among its access profiles, so the rail draws
+   * Lessons for a learner — correctly. A screen that spoke only `/teaching/…`
+   * would then send them at an endpoint carrying the `staff` middleware, which
+   * answers 403. The API has always had the other half.
+   */
+  const learner = viewer.surface === 'learner'
 
   return (
     <ModuleGate
       module="lms"
       title="Lessons"
-      description={`Units of material and the lessons inside them, for the ${t('courses').toLowerCase()} you teach.`}
+      description={
+        learner
+          ? `The material your ${t('teachers').toLowerCase()} have published for you.`
+          : `Units of material and the lessons inside them, for the ${t('courses').toLowerCase()} you teach.`
+      }
       offTitle="This institution does not run course material"
       offDescription="The lessons module is switched off here. An administrator can enable it from the institution's modules."
     >
-      <Workspace />
+      {learner ? <MyLessons /> : <Workspace />}
     </ModuleGate>
   )
 }
@@ -472,7 +486,7 @@ function UnitDetail({ moduleId, canManage }: { moduleId: string; canManage: bool
           {canManage && (
             <Button
               size="sm"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => setComposingLesson(true)}
             >
               Add lesson

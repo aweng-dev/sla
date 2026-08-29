@@ -24,8 +24,9 @@ import {
 import { cn } from '@/shared/lib/cn'
 import { ApiError } from '@/shared/api/envelope'
 import { formatDate, formatNumber, formatPercent } from '@/shared/lib/format'
-import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
-import { ModuleGate } from './components/ModuleGate'
+import { usePermissions, useTerminology, useViewer } from '@/features/tenant/TenantProvider'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
+import { MyHostel } from '@/features/portal/components/MyHostel'
 import {
   hostelApi,
   hostelKeys,
@@ -62,6 +63,16 @@ const TABS_ID = 'hostel-tabs'
 type TabKey = 'occupancy' | 'allocations'
 
 export function HostelPage() {
+  const viewer = useViewer()
+
+  /*
+   * `hostel` lists `student_self` among its access profiles, so the rail
+   * draws this for a learner — correctly. The staff screen below speaks
+   * `/admin/…`, which carries the `staff` middleware and answers 403 to
+   * them, so the reader decides which of the API's two surfaces is shown.
+   */
+  const learner = viewer.surface === 'learner'
+
   const [tab, setTab] = useState<TabKey>('occupancy')
 
   const tabs: TabItem[] = [
@@ -75,16 +86,20 @@ export function HostelPage() {
       title="Hostel"
       offTitle="This institution does not run accommodation"
       offDescription="The hostel module is switched off here. An administrator can enable it from the institution's modules."
+      tabs={
+        <Tabs bare items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
+      }
     >
+      {learner ? (
+        <MyHostel />
+      ) : (
+        <>
       <div>
-        <Tabs items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
-
         {tab === 'occupancy' && (
           <div
             role="tabpanel"
             id={panelId(TABS_ID, 'occupancy')}
             aria-labelledby={`${TABS_ID}-tab-occupancy`}
-            className="pt-4"
           >
             <OccupancyTab />
           </div>
@@ -95,12 +110,13 @@ export function HostelPage() {
             role="tabpanel"
             id={panelId(TABS_ID, 'allocations')}
             aria-labelledby={`${TABS_ID}-tab-allocations`}
-            className="pt-4"
           >
             <AllocationsTab />
           </div>
         )}
       </div>
+        </>
+      )}
     </ModuleGate>
   )
 }

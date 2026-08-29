@@ -155,9 +155,9 @@ export function LoginPage() {
             * is a storage key behind an endpoint this screen is not
             * authenticated for), so the institution is named in words beside
             * the product's own mark. */}
-          <div className="mb-8 flex items-center gap-2 lg:absolute lg:left-7 lg:top-7 lg:mb-0 lg:max-w-[calc(100%-3.5rem)]">
+          <div className="mb-8 flex items-center gap-2.5 lg:absolute lg:left-7 lg:top-7 lg:mb-0 lg:max-w-[calc(100%-3.5rem)]">
             <BrandMark />
-            <span className="truncate text-sm font-semibold tracking-[-0.01em] text-gray-900">
+            <span className="truncate text-sm font-extrabold tracking-[-0.02em] text-gray-900">
               {institution}
             </span>
           </div>
@@ -182,8 +182,8 @@ export function LoginPage() {
             </div>
           )}
 
-          <h1 className="text-xl font-semibold tracking-[-0.01em] text-gray-900">Sign in</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-title">Sign in</h1>
+          <p className="mt-1.5 text-sm text-gray-600">
             Staff, {t('learners').toLowerCase()} and {t('guardians').toLowerCase()} all sign in
             here.
           </p>
@@ -340,8 +340,8 @@ const ROWS = ['w-24', 'w-20', 'w-28', 'w-[5.5rem]', 'w-24'] as const
  *  the rail is layout for signed-in screens and this page is not one of them. */
 function BrandMark() {
   return (
-    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[0.3rem] bg-brand-400">
-      <svg viewBox="0 0 32 32" className="h-4 w-4" aria-hidden>
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-400">
+      <svg viewBox="0 0 32 32" className="h-5 w-5" aria-hidden>
         <path d="M16 7 5.5 12.2 16 17.4l10.5-5.2L16 7Z" className="fill-gray-900" />
         <path
           d="M9.2 15.6v5.1c0 1.9 3 3.4 6.8 3.4s6.8-1.5 6.8-3.4v-5.1L16 19l-6.8-3.4Z"

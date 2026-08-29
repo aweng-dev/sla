@@ -301,11 +301,13 @@ export function PayrollPage() {
 
   return (
     <PageStack>
-      <PageHeader title="Payroll" />
+      <PageHeader title="Payroll"
+        tabs={
+          <Tabs bare items={tabs} value={active} onChange={setTab} baseId={tabsId} />
+        }
+      />
 
       <div>
-        <Tabs items={tabs} value={active} onChange={setTab} baseId={tabsId} />
-
         <div
           role="tabpanel"
           id={panelId(tabsId, active)}
@@ -318,7 +320,7 @@ export function PayrollPage() {
                   canManage ? (
                     <Button
                       variant="primary"
-                      icon={<Plus size={14} weight="bold" />}
+                      trailing={<Plus size={16} weight="bold" />}
                       onClick={() => setCreatingPeriod(true)}
                     >
                       New period

@@ -220,8 +220,8 @@ export const MODULE_CATALOG: Record<string, ModuleCatalogEntry> = {
   assessments: {
     summary:
       'Quizzes, tests, continuous assessment, examinations, practicals and projects, with their windows and accommodations.',
-    endpoints: 0,
-    paths: [],
+    endpoints: 2,
+    paths: ['/admin/grading-schemes'],
   },
   cbt: {
     summary:
@@ -238,8 +238,8 @@ export const MODULE_CATALOG: Record<string, ModuleCatalogEntry> = {
   grading: {
     summary:
       'Grading schemes — letter grades, percentages, grade points, pass/fail and competency rules.',
-    endpoints: 0,
-    paths: [],
+    endpoints: 7,
+    paths: ['/admin/grading-schemes'],
   },
   results: {
     summary:
@@ -299,6 +299,9 @@ export const MODULE_CATALOG: Record<string, ModuleCatalogEntry> = {
     summary:
       'Fee categories, structures and items, and how they attach to a session, period, programme, class or learner.',
     endpoints: 0,
+    /* Gates nothing: every finance route carries `module:finance`. The rail
+     * still draws it, so `/fee-management` renders the fee-structure surface
+     * behind this module gate — see FeeManagementPage. */
     paths: [],
   },
   payment_management: {

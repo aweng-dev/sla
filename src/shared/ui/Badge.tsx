@@ -37,7 +37,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-0.5 text-2xs font-medium leading-4',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-1.5 py-0.5 text-2xs font-semibold leading-4',
         TONES[tone],
         className,
       )}
@@ -52,12 +52,12 @@ export function Badge({
  *  "suspended" looks like. Unknown values fall back to neutral rather than
  *  inventing a colour. */
 const STATUS_TONES: Record<string, Tone> = {
-  active: 'success',
-  enrolled: 'success',
-  paid: 'success',
-  published: 'success',
-  approved: 'success',
-  completed: 'success',
+  active: 'accent',
+  enrolled: 'accent',
+  paid: 'accent',
+  published: 'accent',
+  approved: 'accent',
+  completed: 'accent',
   pending: 'warning',
   draft: 'neutral',
   submitted: 'accent',

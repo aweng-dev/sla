@@ -108,7 +108,7 @@ export function DiscussionsPage() {
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => setCreatingForum(true)}
             >
               New forum
@@ -287,7 +287,7 @@ function ThreadList({
             {/* `can_start_thread_now` folds in the forum's status AND whether
               * learners may open threads at all — never re-derive it. */}
             {forum.can_start_thread_now && (
-              <Button variant="primary" size="sm" icon={<Plus size={13} weight="bold" />} onClick={onStart}>
+              <Button variant="primary" size="sm" trailing={<Plus size={16} weight="bold" />} onClick={onStart}>
                 New thread
               </Button>
             )}
@@ -407,7 +407,7 @@ function ThreadView({
         onClick={onBack}
         className="inline-flex w-fit items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
       >
-        <ArrowLeft size={13} />
+        <ArrowLeft size={16} weight="bold" />
         Back to threads
       </button>
 

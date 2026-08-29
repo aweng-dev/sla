@@ -93,7 +93,7 @@ export function Menu({
         <div
           role="menu"
           className={cn(
-            'absolute z-50 min-w-[11rem] animate-slide-up rounded-md border border-gray-200 bg-white py-1 shadow-popover',
+            'absolute z-50 min-w-[12rem] animate-slide-up rounded-lg border border-gray-200 bg-white py-1.5 shadow-popover',
             side === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1',
             align === 'end' ? 'right-0' : 'left-0',
             className,
@@ -113,7 +113,7 @@ export function Menu({
                       close()
                     }}
                     className={cn(
-                      'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors',
+                      'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-medium transition-colors',
                       'disabled:cursor-not-allowed disabled:text-gray-400',
                       item.destructive
                         ? 'text-danger-500 hover:bg-danger-50'

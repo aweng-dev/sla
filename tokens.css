@@ -70,11 +70,28 @@
   --sl-focus: #6a5cc8;
   --sl-focus-ring: rgba(106, 92, 200, 0.32);
 
+  /* ── Type ───────────────────────────────────────────────────────────────
+   * Sprig sets the product in TT Commons Pro, which reads a step heavier than
+   * Figtree at the same px. Body is 15px; page titles 24px extra-bold; the
+   * greeting 28px. Controls (buttons, inputs, pills) share one 36px height. */
+  --sl-text-body: 0.9375rem;
+  --sl-text-body-leading: 1.5rem;
+  --sl-text-title: 1.5rem;
+  --sl-text-display: 1.75rem;
+  --sl-text-entity: 1.25rem;
+  --sl-text-micro: 0.75rem;
+
   /* ── Geometry ───────────────────────────────────────────────────────────
-   * Sprig is a small, dense product: 6px radii, 13px body, 30px table rows. */
-  --sl-radius: 0.375rem;
+   * 8px radii on controls and cards, 36px controls, 20px nav icons. */
+  --sl-radius: 0.5rem;
   --sl-radius-sm: 0.25rem;
   --sl-radius-lg: 0.5rem;
+  --sl-radius-xl: 0.75rem;
+  --sl-control: 2.25rem;
+  --sl-control-sm: 2rem;
+  --sl-icon: 1.125rem;
+  --sl-icon-lg: 1.25rem;
+  --sl-canvas-pad: 2rem;
   --sl-rail-width: 14rem;
   --sl-rail-width-collapsed: 3.5rem;
 

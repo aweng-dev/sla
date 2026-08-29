@@ -172,16 +172,18 @@ export function StaffPage() {
 
   return (
     <PageStack>
-      <PageHeader title="Staff" />
+      <PageHeader title="Staff"
+        tabs={
+          <Tabs bare
+            items={tabs}
+            value={activeTab}
+            onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
+            baseId={tabsId}
+          />
+        }
+      />
 
       <div>
-        <Tabs
-          items={tabs}
-          value={activeTab}
-          onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
-          baseId={tabsId}
-        />
-
         <div
           role="tabpanel"
           id={panelId(tabsId, activeTab)}

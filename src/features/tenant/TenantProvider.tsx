@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { qk } from '@/shared/api/queryKeys'
 import { authApi, tenantApi } from '@/features/auth/auth.api'
 import { useSessionStore } from '@/features/auth/session.store'
+import { LEARNER_PROFILES } from '@/shared/types/access.types'
+import type { AccessProfile } from '@/shared/types/access.types'
 import type {
   AccessContext,
   Account,
@@ -257,12 +259,101 @@ export function useModules() {
 
   return useMemo(() => {
     const enabled = new Set((access?.modules ?? []).filter((m) => m.enabled).map((m) => m.id))
+    const byId = new Map((access?.modules ?? []).map((module) => [module.id, module]))
+
     return {
       has: (moduleId: string) => enabled.has(moduleId),
       feature: (flag: string) => features[flag] === true,
       all: enabled,
+
+      /**
+       * WHY a module is not available, which is a different question from
+       * whether it is.
+       *
+       * The API resolves six layers and reports which one closed: `denied`
+       * means the institution does not have the module — a training centre has
+       * no report cards however generous its plan — and any other source on a
+       * disabled module means the institution has it and this person does not
+       * reach it. A screen that cannot tell those apart tells somebody their
+       * school does not run a gradebook when the truth is that their role does
+       * not include one.
+       *
+       * `absent` is the honest answer before `/portal/context` has landed, and
+       * for a module id this build knows about that the API has never heard of.
+       */
+      reason: (moduleId: string): ModuleAvailability => {
+        const module = byId.get(moduleId)
+
+        if (module === undefined) return 'absent'
+        if (module.enabled) return 'enabled'
+
+        return module.source === 'denied' ? 'denied' : 'unreachable'
+      },
     }
   }, [access?.modules, features])
+}
+
+/** Whether a module is available, and if not, whose limit closed it. */
+export type ModuleAvailability = 'enabled' | 'denied' | 'unreachable' | 'absent'
+
+/**
+ * Who is looking.
+ *
+ * ── Why a screen needs this and not just a permission ──────────────────────
+ *
+ * Several modules are reached by staff AND by the people they are about:
+ * `gradebook`, `results`, `library`, `transport` and `lms` all list
+ * `student_self` among their access profiles, and most list
+ * `guardian_children` too. So the rail draws the item for a learner, and a
+ * screen built only for staff sends them to an endpoint carrying the `staff`
+ * middleware, which answers 403.
+ *
+ * The API already serves both sides — `/teaching/…` and `/admin/…` for the
+ * people who run the institution, `/portal/…` for the people it is about — and
+ * this decides which of the two a screen should be showing.
+ *
+ * ── A person is several things at once ─────────────────────────────────────
+ *
+ * A teacher whose own child attends the school holds `teacher_access` AND
+ * `guardian_children`. So `isLearner` means holding ONLY learner profiles, not
+ * holding one: the teacher above must get the staff surface, because that is
+ * the wider of the two and the one their job needs.
+ */
+export function useViewer() {
+  const { access, portal } = useTenant()
+
+  return useMemo(() => {
+    const profiles = access?.profiles ?? []
+    const held = new Set<AccessProfile>(profiles)
+
+    const isStudent = held.has('student_self')
+    const isGuardian = held.has('guardian_children')
+
+    /* Only ever about themselves or their children — nobody who also runs any
+     * part of the institution. */
+    const learnerOnly =
+      profiles.length > 0 && profiles.every((profile) => LEARNER_PROFILES.includes(profile))
+
+    return {
+      profiles,
+      has: (profile: AccessProfile) => held.has(profile),
+      isStudent,
+      isGuardian,
+      /** Holds at least one profile that runs some part of the institution. */
+      isStaff: profiles.length > 0 && !learnerOnly,
+      /**
+       * Which of the API's two surfaces a screen should be drawing.
+       *
+       * Nobody with any staff standing is given the learner surface, even
+       * where they are also a parent: the staff one is wider, and a head of
+       * year would otherwise lose their own screens the day their child
+       * enrolled.
+       */
+      surface: (learnerOnly ? 'learner' : 'staff') as 'learner' | 'staff',
+      /** The front door the API signed them in through. */
+      portal,
+    }
+  }, [access?.profiles, portal])
 }
 
 function TenantBootSplash() {

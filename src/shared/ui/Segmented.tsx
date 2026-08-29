@@ -51,7 +51,7 @@ export function Segmented({
             aria-pressed={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              'inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors',
+              'inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-sm transition-colors',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/40',
               active
                 ? 'bg-rail-active font-semibold text-gray-900'

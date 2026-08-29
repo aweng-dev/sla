@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { Warning } from '@phosphor-icons/react'
 import { ApiError } from '@/shared/api/envelope'
 import { get } from '@/shared/api/client'
-import { Button, Field, Input, Modal, Select, Skeleton, Textarea } from '@/shared/ui'
+import { Button, Field, Input, Modal, Segmented, Select, Skeleton, Textarea } from '@/shared/ui'
 import { humanize } from '@/shared/lib/format'
 import { useTenant } from '@/features/tenant/TenantProvider'
 import { identityApi, identityKeys } from './identity.api'
@@ -177,17 +177,17 @@ export function GrantDialog({
           hint={
             type === 'permission'
               ? 'Lets them do something their role does not allow.'
-              : 'Widens which records their permissions apply to.'
+              : 'Widens which records their permissions apply to. An audit will ask about this one.'
           }
         >
-          {(props) => (
-            <Select
-              {...props}
+          {() => (
+            <Segmented
+              label="What to grant"
               value={type}
-              onChange={(e) => setType(e.target.value as typeof type)}
+              onChange={(value) => setType(value as typeof type)}
               options={[
-                { value: 'permission', label: 'A permission' },
-                { value: 'scope', label: 'A scope' },
+                { value: 'permission', label: 'Permission' },
+                { value: 'scope', label: 'Scope' },
               ]}
             />
           )}

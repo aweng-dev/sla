@@ -118,27 +118,27 @@ export function Modal({
           size === 'lg' && 'max-w-3xl',
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-3.5">
+        <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
           <div className="min-w-0">
-            <h2 id={titleId} className="text-md font-semibold text-gray-900">
+            <h2 id={titleId} className="text-lg font-bold tracking-[-0.015em] text-gray-900">
               {title}
             </h2>
-            {description && <p className="mt-0.5 text-xs text-gray-600">{description}</p>}
+            {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1 -mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            className="-mr-1 -mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
           >
-            <X size={15} />
+            <X size={18} weight="bold" />
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-gray-200 px-5 py-3">
+          <div className="flex items-center justify-end gap-2 border-t border-gray-200 px-5 py-3.5">
             {footer}
           </div>
         )}

@@ -22,7 +22,7 @@ import { cn } from '@/shared/lib/cn'
 import { formatDate, formatNumber, formatRelative } from '@/shared/lib/format'
 import { useDebounced } from '@/shared/lib/useDebounced'
 import { useTerminology } from '@/features/tenant/TenantProvider'
-import { ModuleGate } from '@/features/operations/components/ModuleGate'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
 import {
   admissionKeys,
   admissionsApi,
@@ -79,10 +79,11 @@ export function AdmissionsPage() {
       title="Admissions"
       offTitle="This institution does not run admissions"
       offDescription="The admissions module is switched off here. An administrator can enable it from the institution's modules."
+      tabs={
+        <Tabs bare items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
+      }
     >
       <div>
-        <Tabs items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
-
         <Panel id="pipeline" tab={tab}>
           <PipelineTab />
         </Panel>
@@ -104,7 +105,6 @@ function Panel({ id, tab, children }: { id: TabKey; tab: TabKey; children: React
       role="tabpanel"
       id={panelId(TABS_ID, id)}
       aria-labelledby={`${TABS_ID}-tab-${id}`}
-      className="pt-4"
     >
       {children}
     </div>

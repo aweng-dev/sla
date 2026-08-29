@@ -212,7 +212,7 @@ export function AcademicCalendarPage() {
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => setCreatingCalendar(true)}
             >
               New calendar
@@ -292,7 +292,7 @@ export function AcademicCalendarPage() {
                       {canManage && (
                         <Button
                           variant="primary"
-                          icon={<Plus size={14} weight="bold" />}
+                          trailing={<Plus size={16} weight="bold" />}
                           onClick={() => setCreatingEntry(true)}
                         >
                           Add entry

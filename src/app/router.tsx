@@ -109,33 +109,6 @@ const guardianDetailRoute = createRoute({
  * differently here would leave the item pointing at `/$module` with no
  * indication anything was wrong.
  */
-const academicSessionsRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/academic-sessions',
-  component: lazyRouteComponent(
-    () => import('@/features/academics/AcademicSessionsPage'),
-    'AcademicSessionsPage',
-  ),
-})
-
-const academicPeriodsRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/academic-periods',
-  component: lazyRouteComponent(
-    () => import('@/features/academics/AcademicPeriodsPage'),
-    'AcademicPeriodsPage',
-  ),
-})
-
-const academicLevelsRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/academic-levels',
-  component: lazyRouteComponent(
-    () => import('@/features/academics/AcademicLevelsPage'),
-    'AcademicLevelsPage',
-  ),
-})
-
 const programsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/programs',
@@ -172,15 +145,6 @@ const enrollmentRoute = createRoute({
   component: lazyRouteComponent(
     () => import('@/features/academics/EnrollmentPage'),
     'EnrollmentPage',
-  ),
-})
-
-const institutionStructureRoute = createRoute({
-  getParentRoute: () => appRoute,
-  path: '/institution-structure',
-  component: lazyRouteComponent(
-    () => import('@/features/academics/InstitutionStructurePage'),
-    'InstitutionStructurePage',
   ),
 })
 
@@ -246,16 +210,143 @@ const securityRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/security/SecurityPage'), 'SecurityPage'),
 })
 
+/**
+ * ── Attendance ────────────────────────────────────────────────────────────
+ *
+ * Only `attendance` is here. `smart-attendance` appears in the navigation but
+ * no route in the API is registered behind `module:smart_attendance` — the
+ * same as `lms` and `learning-progress` — so it keeps falling through to the
+ * module scaffold rather than getting a screen with nothing behind it.
+ */
+const attendanceRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/attendance',
+  component: lazyRouteComponent(
+    () => import('@/features/attendance/AttendancePage'),
+    'AttendancePage',
+  ),
+})
+
+/* ── Finance modules with their own rail item ───────────────────────────
+ * `accounting` and `payment_plans` are separate modules from `finance`: an
+ * institution can run fees, invoices and payments without keeping
+ * double-entry books or offering instalments. Both surfaces are read-only —
+ * the ledger is written by the acts it records, and a plan is agreed against
+ * the invoice it settles. */
+/* The week, for whoever is asking. `/portal/timetable` resolves whose week to
+ * return from the caller's own records, so one screen serves a teacher, a
+ * student and a guardian — see TimetablePage. */
+const timetableRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/timetable',
+  component: lazyRouteComponent(
+    () => import('@/features/timetable/TimetablePage'),
+    'TimetablePage',
+  ),
+})
+
+const accountingRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/accounting',
+  component: lazyRouteComponent(
+    () => import('@/features/accounting/AccountingPage'),
+    'AccountingPage',
+  ),
+})
+
+const paymentPlansRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/payment-plans',
+  component: lazyRouteComponent(
+    () => import('@/features/paymentplans/PaymentPlansPage'),
+    'PaymentPlansPage',
+  ),
+})
+
+/* ── Student services ──────────────────────────────────────────────────
+ * Neither route sits under `admin/` on the API and neither carries `staff`:
+ * a learner reads their own emergency card and a guardian reads their
+ * child's, so the authorization is complete in the policies rather than the
+ * route stack. Health is split in two tiers — see HealthClinicPage. */
+const healthClinicRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/health-clinic',
+  component: lazyRouteComponent(
+    () => import('@/features/studentservices/HealthClinicPage'),
+    'HealthClinicPage',
+  ),
+})
+
+const disciplineRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/discipline',
+  component: lazyRouteComponent(
+    () => import('@/features/studentservices/DisciplinePage'),
+    'DisciplinePage',
+  ),
+})
+
 const accountRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/account',
   component: lazyRouteComponent(() => import('@/features/account/AccountPage'), 'AccountPage'),
 })
 
-const settingsRoute = createRoute({
+/**
+ * Settings is addressed by section — `/settings/sessions`, `/settings/branding`
+ * — so a section is linkable, survives a reload and can be sent to somebody.
+ * A bare `/settings` lands on the first section the reader can actually reach,
+ * which `SettingsPage` decides from their modules and permissions.
+ */
+const settingsIndexRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/settings',
   component: lazyRouteComponent(() => import('@/features/settings/SettingsPage'), 'SettingsPage'),
+})
+
+const settingsSectionRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/settings/$section',
+  component: lazyRouteComponent(() => import('@/features/settings/SettingsPage'), 'SettingsPage'),
+})
+
+/**
+ * Structure, Sessions, Periods and Year groups moved into Settings — they are
+ * the institution's shape rather than places anyone works. The old top-level
+ * paths redirect rather than 404: the module scaffold cross-links to them, and
+ * they have been linkable for as long as the rail listed them.
+ */
+const movedStructureRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/institution-structure',
+  beforeLoad: () => {
+    throw redirect({ to: '/settings/$section', params: { section: 'structure' } })
+  },
+})
+
+const movedSessionsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/academic-sessions',
+  beforeLoad: () => {
+    throw redirect({ to: '/settings/$section', params: { section: 'sessions' } })
+  },
+})
+
+const movedPeriodsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/academic-periods',
+  beforeLoad: () => {
+    throw redirect({ to: '/settings/$section', params: { section: 'periods' } })
+  },
+})
+
+const academicLevelsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/academic-levels',
+  component: lazyRouteComponent(
+    () => import('@/features/academics/AcademicLevelsPage'),
+    'AcademicLevelsPage',
+  ),
 })
 
 const communicationsRoute = createRoute({
@@ -397,6 +488,39 @@ const assessmentRoute = createRoute({
   ),
 })
 
+const gradingRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/grading',
+  component: lazyRouteComponent(() => import('@/features/assessment/GradingPage'), 'GradingPage'),
+})
+
+const gradebookRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/gradebook',
+  component: lazyRouteComponent(
+    () => import('@/features/assessment/GradebookPage'),
+    'GradebookPage',
+  ),
+})
+
+/* The results WORKFLOW, gated on the gradebook module rather than on
+ * `results` — the API puts calculate/approve/publish inside the gradebook
+ * group, and `module:results` gates only the learner-facing portal reads. */
+const resultsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/results',
+  component: lazyRouteComponent(() => import('@/features/assessment/ResultsPage'), 'ResultsPage'),
+})
+
+/* Computer-based testing. The candidate's surface — sitting a paper, and
+ * reading a released one back. `cbt` reaches `student_self`, so the rail
+ * draws this for the people the tests are for. */
+const examsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/cbt',
+  component: lazyRouteComponent(() => import('@/features/exams/ExamsPage'), 'ExamsPage'),
+})
+
 const questionBankRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/question-bank',
@@ -423,6 +547,34 @@ const questionBankDetailRoute = createRoute({
  * invoice and a payment are only ever reached from there, and a nested path
  * keeps the rail's longest-prefix match lighting Finance on both.
  */
+/* The rail carries `fee_management` as its own item; before this it fell
+ * through to the module scaffold. See FeeManagementPage for why it is a screen
+ * of its own rather than only a tab on /finance. */
+/*
+ * Where a payment provider sends the payer back.
+ *
+ * Its own path, and deliberately not `/finance/payments/$paymentId` — that is
+ * the staff detail screen keyed on a payment's uuid, and what comes back from a
+ * provider is an intent REFERENCE. `config/payments.php` builds this URL.
+ */
+const paymentReturnRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/finance/return/$reference',
+  component: lazyRouteComponent(
+    () => import('@/features/portal/PaymentReturnPage'),
+    'PaymentReturnPage',
+  ),
+})
+
+const feeManagementRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/fee-management',
+  component: lazyRouteComponent(
+    () => import('@/features/finance/FeeManagementPage'),
+    'FeeManagementPage',
+  ),
+})
+
 const financeRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/finance',
@@ -503,6 +655,52 @@ const roleDetailRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/identity/RoleDetailPage'), 'RoleDetailPage'),
 })
 
+/**
+ * Tools — five small utilities the API groups under `platform_services`.
+ *
+ * Each is a single screen, so they share one feature directory rather than
+ * five folders of two files. The route segments are the ones the API's own
+ * navigation emits, so the rail reaches them without a mapping table.
+ */
+const toolsDocumentsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/document-management',
+  component: lazyRouteComponent(() => import('@/features/tools/DocumentsPage'), 'DocumentsPage'),
+})
+
+const toolsWorkflowRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/workflow',
+  component: lazyRouteComponent(() => import('@/features/tools/WorkflowsPage'), 'WorkflowsPage'),
+})
+
+const toolsCustomisationRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/customization',
+  component: lazyRouteComponent(
+    () => import('@/features/tools/CustomFieldsPage'),
+    'CustomFieldsPage',
+  ),
+})
+
+const toolsImportExportRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/import-export',
+  component: lazyRouteComponent(
+    () => import('@/features/tools/ImportExportPage'),
+    'ImportExportPage',
+  ),
+})
+
+const toolsIntegrationsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/integrations',
+  component: lazyRouteComponent(
+    () => import('@/features/tools/IntegrationsPage'),
+    'IntegrationsPage',
+  ),
+})
+
 const moduleRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/$module',
@@ -516,25 +714,32 @@ export const routeTree = rootRoute.addChildren([
     dashboardRoute,
     studentsRoute,
     studentDetailRoute,
-    academicSessionsRoute,
-    academicPeriodsRoute,
-    academicLevelsRoute,
     programsRoute,
     coursesRoute,
     learningGroupsRoute,
     courseOfferingsRoute,
     enrollmentRoute,
-    institutionStructureRoute,
     academicCalendarRoute,
     curriculumRoute,
     assignmentsRoute,
     assignmentDetailRoute,
     discussionsRoute,
+    attendanceRoute,
     guardiansRoute,
     guardianDetailRoute,
     securityRoute,
+    timetableRoute,
+    accountingRoute,
+    paymentPlansRoute,
+    healthClinicRoute,
+    disciplineRoute,
     accountRoute,
-    settingsRoute,
+    settingsIndexRoute,
+    settingsSectionRoute,
+    movedStructureRoute,
+    movedSessionsRoute,
+    movedPeriodsRoute,
+    academicLevelsRoute,
     notificationsRoute,
     communicationsRoute,
     lessonsRoute,
@@ -548,8 +753,14 @@ export const routeTree = rootRoute.addChildren([
     reportsRoute,
     reportDetailRoute,
     assessmentRoute,
+    examsRoute,
+    gradingRoute,
+    gradebookRoute,
+    resultsRoute,
     questionBankRoute,
     questionBankDetailRoute,
+    paymentReturnRoute,
+    feeManagementRoute,
     financeRoute,
     invoiceDetailRoute,
     paymentDetailRoute,
@@ -561,6 +772,11 @@ export const routeTree = rootRoute.addChildren([
     userDetailRoute,
     rbacRoute,
     roleDetailRoute,
+    toolsDocumentsRoute,
+    toolsWorkflowRoute,
+    toolsCustomisationRoute,
+    toolsImportExportRoute,
+    toolsIntegrationsRoute,
     moduleRoute,
   ]),
 ])

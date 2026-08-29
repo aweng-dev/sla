@@ -34,12 +34,12 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        'flex items-start justify-between gap-3 border-b border-gray-200 px-4 py-3',
+        'flex items-start justify-between gap-3 border-b border-gray-200 px-5 py-4',
         className,
       )}
     >
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-semibold text-gray-900">{title}</h3>
+        <h3 className="truncate text-md font-semibold text-gray-900">{title}</h3>
         {subtitle && <p className="mt-0.5 truncate text-xs text-gray-600">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
@@ -48,13 +48,13 @@ export function CardHeader({
 }
 
 export function CardBody({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('p-4', className)} {...props} />
+  return <div className={cn('p-5', className)} {...props} />
 }
 
 export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('flex items-center justify-end gap-2 border-t border-gray-200 px-4 py-3', className)}
+      className={cn('flex items-center justify-end gap-2 border-t border-gray-200 px-5 py-3.5', className)}
       {...props}
     />
   )

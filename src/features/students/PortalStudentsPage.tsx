@@ -136,9 +136,9 @@ export function PortalStudentDetailPage({ studentId }: { studentId: string }) {
     portal === 'guardian' ? (
       <Link
         to="/students"
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
       >
-        <ArrowLeft size={12} weight="bold" />
+        <ArrowLeft size={16} weight="bold" />
         All {t('learners').toLowerCase()}
       </Link>
     ) : null

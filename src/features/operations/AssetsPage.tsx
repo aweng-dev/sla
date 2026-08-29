@@ -38,7 +38,7 @@ import { ApiError } from '@/shared/api/envelope'
 import { formatDate, formatMoney, formatNumber, humanize } from '@/shared/lib/format'
 import { useDebounced } from '@/shared/lib/useDebounced'
 import { usePermissions } from '@/features/tenant/TenantProvider'
-import { ModuleGate } from './components/ModuleGate'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
 import {
   assetKeys,
   assetsApi,
@@ -95,10 +95,11 @@ export function AssetsPage() {
       title="Assets"
       offTitle="This institution does not track assets"
       offDescription="The assets and inventory module is switched off here. An administrator can enable it from the institution's modules."
+      tabs={
+        <Tabs bare items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
+      }
     >
       <div>
-        <Tabs items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
-
         <Panel id="assets" tab={tab}>
           <AssetsTab />
         </Panel>
@@ -120,7 +121,6 @@ function Panel({ id, tab, children }: { id: TabKey; tab: TabKey; children: React
       role="tabpanel"
       id={panelId(TABS_ID, id)}
       aria-labelledby={`${TABS_ID}-tab-${id}`}
-      className="pt-4"
     >
       {children}
     </div>

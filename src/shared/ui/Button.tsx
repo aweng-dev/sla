@@ -8,13 +8,14 @@ import { cn } from '@/shared/lib/cn'
  * variant that renders yellow TEXT, and there must not be: #f8d030 on white is
  * roughly 1.6:1, which fails every contrast threshold there is. When something
  * needs to read as interactive in text, it uses `link` — the accent purple,
- * which was chosen precisely because it survives at 13px.
+ * which was chosen precisely because it survives at 15px.
  *
- * ── Sprig's buttons are small ──────────────────────────────────────────────
+ * ── Sprig's buttons ────────────────────────────────────────────────────────
  *
- * 32px tall at the default size, 13px medium label, 6px radius, and no shadow
- * on any of them. `secondary` is a white button with a hairline; the product
- * separates with hairlines rather than elevation throughout.
+ * 36px tall at the default size, 15px semibold label, 8px radius, no shadow.
+ * `secondary` is a white button with a hairline. Icon-to-label gap is 8px.
+ * Create actions put the plus AFTER the label (`trailing`), matching
+ * Sprig's "New Study +".
  */
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link' | 'inverse'
@@ -32,18 +33,18 @@ const VARIANTS: Record<Variant, string> = {
 }
 
 const SIZES: Record<Size, string> = {
-  sm: 'h-7 px-2.5 text-xs gap-1.5 rounded',
-  md: 'h-8 px-3 text-sm gap-1.5 rounded-md',
-  lg: 'h-9 px-4 text-base gap-2 rounded-md',
-  icon: 'h-8 w-8 p-0 rounded-md',
+  sm: 'h-8 px-3 text-sm gap-1.5 rounded-lg',
+  md: 'h-9 px-3.5 text-sm gap-2 rounded-lg',
+  lg: 'h-10 px-4 text-md gap-2 rounded-lg',
+  icon: 'h-9 w-9 p-0 rounded-lg',
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
   size?: Size
-  /** Rendered before the label. Pass a Phosphor icon at `size={15}`. */
+  /** Rendered before the label. Pass a Phosphor icon at `size={16}` `weight="bold"`. */
   icon?: ReactNode
-  /** Rendered after the label — a chevron, a plus, a count. */
+  /** Rendered after the label — a plus on a create CTA, a caret, a count. */
   trailing?: ReactNode
   loading?: boolean
   fullWidth?: boolean
@@ -73,11 +74,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       className={cn(
         'inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap',
-        /* Medium on every variant. Sprig sets its button labels heavier than
+        /* Semibold on every variant. Sprig sets its button labels heavier than
          * body text throughout, and a regular-weight secondary sitting beside
          * a medium primary reads as the disabled one. */
-        'font-medium transition-colors duration-100',
+        'font-semibold transition-colors duration-100',
         'disabled:cursor-not-allowed',
+        '[&_svg]:shrink-0',
         VARIANTS[variant],
         SIZES[size],
         fullWidth && 'w-full',
@@ -87,7 +89,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     >
       {loading ? (
         <span
-          className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-[1.5px] border-current border-t-transparent"
+          className="h-4 w-4 shrink-0 animate-spin rounded-full border-[1.5px] border-current border-t-transparent"
           aria-hidden
         />
       ) : (

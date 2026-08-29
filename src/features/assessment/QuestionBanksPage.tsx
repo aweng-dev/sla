@@ -192,7 +192,7 @@ export function QuestionBanksPage() {
   ]
 
   const createAction = perms.has('question_bank.manage') ? (
-    <Button variant="primary" icon={<Plus size={14} weight="bold" />} onClick={() => setCreating(true)}>
+    <Button variant="primary" trailing={<Plus size={16} weight="bold" />} onClick={() => setCreating(true)}>
       New bank
     </Button>
   ) : null
@@ -208,16 +208,18 @@ export function QuestionBanksPage() {
 
   return (
     <PageStack>
-      <PageHeader title="Question bank" />
+      <PageHeader title="Question bank"
+        tabs={
+          <Tabs bare
+            items={tabs}
+            value={activeTab}
+            onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
+            baseId={tabsId}
+          />
+        }
+      />
 
       <div>
-        <Tabs
-          items={tabs}
-          value={activeTab}
-          onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
-          baseId={tabsId}
-        />
-
         <div
           role="tabpanel"
           id={panelId(tabsId, activeTab)}

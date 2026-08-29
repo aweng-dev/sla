@@ -239,9 +239,9 @@ export function moduleIcon(key: string | null | undefined): Icon {
 /** Renders the icon for a module at the rail's size. */
 export function ModuleIcon({
   name,
-  size = 16,
+  size = 20,
   className,
-  weight = 'regular',
+  weight = 'bold',
 }: {
   name: string | null | undefined
   size?: number

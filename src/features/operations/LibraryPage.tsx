@@ -33,9 +33,10 @@ import {
 import { ApiError } from '@/shared/api/envelope'
 import { formatDate, formatMoney, formatNumber, formatRelative, humanize } from '@/shared/lib/format'
 import { useDebounced } from '@/shared/lib/useDebounced'
-import { usePermissions, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
+import { usePermissions, useTenant, useTerminology, useViewer } from '@/features/tenant/TenantProvider'
 import { SearchInput } from '@/shared/ui'
-import { ModuleGate } from './components/ModuleGate'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
+import { MyLibrary } from '@/features/portal/components/MyLibrary'
 import {
   libraryApi,
   libraryKeys,
@@ -77,6 +78,16 @@ const TABS_ID = 'library-tabs'
 type TabKey = 'loans' | 'catalogue' | 'members' | 'fines'
 
 export function LibraryPage() {
+  const viewer = useViewer()
+
+  /*
+   * `library` lists `student_self` among its access profiles, so the rail
+   * draws this for a learner — correctly. The staff screen below speaks
+   * `/admin/…`, which carries the `staff` middleware and answers 403 to
+   * them, so the reader decides which of the API's two surfaces is shown.
+   */
+  const learner = viewer.surface === 'learner'
+
   const [tab, setTab] = useState<TabKey>('loans')
   const queryClient = useQueryClient()
   const permissions = usePermissions()
@@ -127,6 +138,10 @@ export function LibraryPage() {
         ) : undefined
       }
     >
+      {learner ? (
+        <MyLibrary />
+      ) : (
+        <>
       <div>
         <Tabs items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
 
@@ -143,6 +158,8 @@ export function LibraryPage() {
           <FinesTab canManage={canManage} />
         </Panel>
       </div>
+        </>
+      )}
     </ModuleGate>
   )
 }

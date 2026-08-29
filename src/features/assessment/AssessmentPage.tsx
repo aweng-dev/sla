@@ -10,9 +10,10 @@ import { Card, CardHeader, EmptyState, EntityIcon, PageHeader } from '@/shared/u
  *
  * ── Why this is a hub and not a screen with data ───────────────────────────
  *
- * `module:assessments` gates NO routes in the API. Every other module in the
- * rail names at least one endpoint; this one names none, because assessment is
- * spread across five modules that each own their own surface:
+ * `module:assessments` gates one thing only: the assessment CATEGORIES that
+ * decide how a final mark is composed, and those live inside a grading scheme,
+ * so they are authored on the Grading screen beside the scale. Everything else
+ * assessment means is spread across modules that each own their own surface:
  *
  *   question_bank  the reusable questions papers are built from
  *   cbt            the papers themselves, their sittings and marking
@@ -34,6 +35,9 @@ import { Card, CardHeader, EmptyState, EntityIcon, PageHeader } from '@/shared/u
  *  falls through to the module scaffold, which is honest about being unbuilt. */
 const BUILT: Record<string, string> = {
   question_bank: '/question-bank',
+  gradebook: '/gradebook',
+  grading: '/grading',
+  results: '/results',
 }
 
 const BLURBS: Record<string, string> = {

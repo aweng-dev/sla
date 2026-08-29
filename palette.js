@@ -206,16 +206,19 @@ export const surface = {
 
 /** Colour VALUES for anything that cannot take a utility class — Recharts
  *  props, gradient strings, category maps. Never write a hex in a component;
- *  import from `@/shared/theme/chartColors` which re-exports these. */
+ *  import from `@/shared/theme/chartColors` which re-exports these.
+ *
+ *  Order is Sprig's own rating-scale / donut series, confirmed on Mobbin
+ *  (https://mobbin.com/screens/983b06fe-bfd9-4c44-a56a-a39a8c347428 and
+ *  https://mobbin.com/screens/a24e2d9a-0d7e-4d41-9502-92dd2424ba97):
+ *  purple, yellow, teal, magenta, coral. Sprig does not paint data bars
+ *  green or red — green is a success toast only, red is unused. */
 export const categorical = [
   accent[500],
-  brand[500],
-  coral[500],
+  brand[400],
   teal[500],
   magenta[500],
-  accent[800],
-  brand[300],
-  teal[700],
+  coral[500],
 ]
 
 export const palette = {

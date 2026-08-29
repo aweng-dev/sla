@@ -244,24 +244,25 @@ export function AcademicLevelsPage() {
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => open(null)}
             >
               New {t('level').toLowerCase()}
             </Button>
           ) : undefined
         }
-      />
-
-      <Tabs
-        baseId={viewId}
-        value={view}
-        onChange={(key) => setView(key as 'list' | 'tree')}
-        items={[
-          { key: 'list', label: 'All', count: query.data?.pagination.total },
-          { key: 'tree', label: 'Hierarchy' },
-        ]}
-      />
+        tabs={
+          <Tabs bare
+          baseId={viewId}
+          value={view}
+          onChange={(key) => setView(key as 'list' | 'tree')}
+          items={[
+            { key: 'list', label: 'All', count: query.data?.pagination.total },
+            { key: 'tree', label: 'Hierarchy' },
+          ]}
+        />
+        }
+        />
 
       <div
         role="tabpanel"

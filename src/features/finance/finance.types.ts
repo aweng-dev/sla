@@ -284,3 +284,53 @@ export interface AwardScholarshipPayload {
   amount_minor?: number | null
   reason?: string | null
 }
+
+/**
+ * A gateway's own message about a payment.
+ *
+ * ── Why a bursar ever looks at these ───────────────────────────────────────
+ *
+ * The money loop is: structure → invoice → checkout → the provider takes the
+ * money → a webhook says so → a payment is written → the balance falls. When a
+ * parent says "I paid and it still shows unpaid", exactly one link in that
+ * chain has broken, and this is the only screen that can say which.
+ *
+ * `status` is the API's `PaymentWebhookStatus`. `exhausted` and `failed` are
+ * the two a person has to act on — the rest resolve themselves.
+ */
+export type PaymentWebhookStatus =
+  | 'received'
+  | 'processing'
+  | 'processed'
+  | 'ignored'
+  | 'failed'
+  | 'exhausted'
+
+export interface PaymentWebhookEvent {
+  id: string
+  provider: string
+  provider_label: string
+  provider_event_id: string | null
+  event_type: string | null
+  status: PaymentWebhookStatus
+  /** Nothing further will happen on its own. */
+  is_terminal: boolean
+  /**
+   * Whether the message was really from the provider. A false here is not a
+   * retry candidate — it is a message this application could not prove came
+   * from the gateway, and replaying it would be acting on an unsigned claim
+   * about somebody's money.
+   */
+  signature_verified: boolean
+  /** The intent this refers to, when one could be matched. Null is the
+   *  interesting case: a payment nothing in this system is waiting for. */
+  intent_reference: string | null
+  payment_intent_id: string | null
+  attempts: number
+  last_error: string | null
+  next_attempt_at: string | null
+  received_at: string | null
+  processed_at: string | null
+  /** The provider's raw body. Shown on demand, never parsed for meaning. */
+  payload?: Record<string, unknown> | null
+}

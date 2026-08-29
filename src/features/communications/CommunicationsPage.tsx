@@ -95,22 +95,23 @@ export function CommunicationsPage() {
           deciding whether to start a thread, which is when the promise is
           actually being relied on. A vaguer copy of it under the title was the
           third stacked line in a header Sprig draws in one. */}
-      <PageHeader title="Messages" />
+      <PageHeader title="Messages"
+        tabs={
+          <Tabs bare
+            items={tabs}
+            value={tab}
+            onChange={(key) => setTab(key as TabKey)}
+            baseId={TABS_ID}
+          />
+        }
+      />
 
       <div>
-        <Tabs
-          items={tabs}
-          value={tab}
-          onChange={(key) => setTab(key as TabKey)}
-          baseId={TABS_ID}
-        />
-
         {tab === 'messages' && (
           <div
             role="tabpanel"
             id={panelId(TABS_ID, 'messages')}
             aria-labelledby={`${TABS_ID}-tab-messages`}
-            className="pt-4"
           >
             <MessagesPanel />
           </div>
@@ -121,7 +122,6 @@ export function CommunicationsPage() {
             role="tabpanel"
             id={panelId(TABS_ID, 'noticeboard')}
             aria-labelledby={`${TABS_ID}-tab-noticeboard`}
-            className="pt-4"
           >
             <NoticeboardPanel />
           </div>

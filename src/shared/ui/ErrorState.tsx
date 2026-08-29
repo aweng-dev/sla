@@ -47,7 +47,7 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
       }
       action={
         onRetry && (!api || api.status >= 500 || api.retryable || api.status === 0) ? (
-          <Button icon={<ArrowClockwise size={14} />} onClick={onRetry}>
+          <Button icon={<ArrowClockwise size={16} weight="bold" />} onClick={onRetry}>
             Try again
           </Button>
         ) : undefined

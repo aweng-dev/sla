@@ -76,7 +76,7 @@ export function ReviewsCard({
           }
           actions={
             canReview ? (
-              <Button size="sm" icon={<Plus size={14} weight="bold" />} onClick={() => setWriting(true)}>
+              <Button size="sm" trailing={<Plus size={16} weight="bold" />} onClick={() => setWriting(true)}>
                 Add
               </Button>
             ) : undefined

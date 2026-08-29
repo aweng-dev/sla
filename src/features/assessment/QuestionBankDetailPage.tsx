@@ -127,9 +127,9 @@ export function QuestionBankDetailPage() {
     <Link
       to="/question-bank"
       search={toBankListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       All banks
     </Link>
   )
@@ -209,7 +209,7 @@ export function QuestionBankDetailPage() {
               </Button>
               <Button
                 variant="primary"
-                icon={<Plus size={14} weight="bold" />}
+                trailing={<Plus size={16} weight="bold" />}
                 onClick={() => setComposing(true)}
               >
                 Add question

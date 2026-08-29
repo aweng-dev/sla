@@ -81,7 +81,16 @@ export function Tabs({
   return (
     <div
       role="tablist"
-      className={cn('flex items-center gap-5', !bare && 'border-b border-gray-200', className)}
+      className={cn(
+        /* Scrollable on a narrow viewport. A five-tab strip does not fit 375px
+         * and was being clipped with no way to reach the last two — the header
+         * has no horizontal overflow of its own, so the strip must carry it.
+         * `pb-px` keeps the active tab's -1px underline inside the scroll box. */
+        'flex items-center gap-6 overflow-x-auto pb-px',
+        '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        !bare && 'border-b border-gray-200',
+        className,
+      )}
     >
       {items.map((item) => {
         const active = item.key === value
@@ -100,7 +109,7 @@ export function Tabs({
             onKeyDown={onKeyDown}
             onClick={() => onChange(item.key)}
             className={cn(
-              'relative -mb-px flex items-center gap-1.5 border-b-2 pb-2 pt-1 text-sm transition-colors',
+              'relative -mb-px flex shrink-0 items-center gap-2 border-b-2 pb-2.5 pt-1 text-sm transition-colors [&_svg]:h-[18px] [&_svg]:w-[18px]',
               'disabled:cursor-not-allowed disabled:text-gray-400',
               /* Weight does NOT change between states. Sprig sets every tab
                * semibold and lets the rule carry the selection; dropping the

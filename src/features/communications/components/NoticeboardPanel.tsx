@@ -280,7 +280,7 @@ function SentList() {
 
           <Button
             variant="primary"
-            icon={<Plus size={15} weight="bold" />}
+            trailing={<Plus size={16} weight="bold" />}
             onClick={() => setComposing(true)}
           >
             Write an announcement

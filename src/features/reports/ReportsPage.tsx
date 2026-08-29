@@ -75,21 +75,22 @@ export function ReportsPage() {
             </span>
           ) : undefined
         }
+        tabs={
+          <Tabs
+            bare
+            baseId={baseId}
+            items={items}
+            value={tab}
+            onChange={(key) => setTab(key as TabId)}
+          />
+        }
       />
 
       <div>
-        <Tabs
-          baseId={baseId}
-          items={items}
-          value={tab}
-          onChange={(key) => setTab(key as TabId)}
-        />
-
         <div
           role="tabpanel"
           id={panelId(baseId, tab)}
           aria-labelledby={`${baseId}-tab-${tab}`}
-          className="pt-5"
         >
           {tab === 'analytics' && <AnalyticsTab />}
           {tab === 'reports' && canSeeReports && <DefinitionsTab />}

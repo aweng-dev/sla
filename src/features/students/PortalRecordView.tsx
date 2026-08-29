@@ -109,11 +109,16 @@ export function PortalRecordView({ record }: { record: PortalStudentRecord }) {
             )}
           </>
         }
+        /* One tab is not a choice — when the record has a single panel the
+         * strip is withheld and the header has no tab row at all. */
+        tabs={
+          tabbed ? (
+            <Tabs bare items={tabs} value={active} onChange={setTab} baseId={baseId} />
+          ) : undefined
+        }
       />
 
       <div className="flex flex-col gap-4">
-        {tabbed && <Tabs items={tabs} value={active} onChange={setTab} baseId={baseId} />}
-
         <div {...panelProps}>
           {/* No photograph: `/admin/students/{id}/photo` is a staff route like
               the rest of `/admin`, so there are no bytes to ask for here and

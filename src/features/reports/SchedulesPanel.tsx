@@ -54,7 +54,7 @@ export function SchedulesPanel({ reportId }: { reportId: string }) {
         subtitle="Run automatically and email the result."
         actions={
           perms.has('reports.manage') ? (
-            <Button size="sm" icon={<Plus size={13} weight="bold" />} onClick={() => setCreating(true)}>
+            <Button size="sm" trailing={<Plus size={16} weight="bold" />} onClick={() => setCreating(true)}>
               Add
             </Button>
           ) : undefined

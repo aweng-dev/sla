@@ -17,8 +17,9 @@ import { useNavLabels, type NavLabels } from '@/shared/nav/moduleLabels'
 import { useTenant } from '@/features/tenant/TenantProvider'
 import { useUiStore } from '@/shared/store/ui.store'
 import { useSignOut } from '@/features/auth/useSignOut'
-import { Avatar, Badge, Menu, Tooltip } from '@/shared/ui'
+import { Avatar, Badge, Menu, Tooltip, type MenuItemSpec } from '@/shared/ui'
 import type { NavigationItem } from '@/shared/types/navigation.types'
+import { SETTINGS_OWNED_MODULES } from '@/features/settings/sections'
 
 /**
  * The rail.
@@ -106,6 +107,25 @@ export function Sidebar() {
     return best?.key ?? null
   }, [location.pathname, sections])
 
+  /* Built once: the collapsed rail and the expanded one open the same menu,
+   * and two copies would be two places for "Your account" to go missing. */
+  const accountMenu: MenuItemSpec[] = [
+    {
+      key: 'account',
+      label: 'Your account',
+      icon: <UserCircle size={15} />,
+      onSelect: () => navigate({ to: '/account' }),
+    },
+    {
+      key: 'signout',
+      label: 'Sign out',
+      icon: <SignOut size={15} />,
+      destructive: true,
+      separated: true,
+      onSelect: signOut,
+    },
+  ]
+
   return (
     <nav
       aria-label="Main"
@@ -117,13 +137,13 @@ export function Sidebar() {
       {/* ── Wordmark ──────────────────────────────────────────────────── */}
       <div
         className={cn(
-          'flex h-12 shrink-0 items-center gap-2',
-          collapsed ? 'justify-center px-2' : 'pl-3 pr-4',
+          'flex min-h-14 shrink-0 items-center gap-2 py-2',
+          collapsed ? 'justify-center px-2' : 'pl-3 pr-1.5',
         )}
       >
         <Link
           to="/dashboard"
-          className="flex min-w-0 items-center gap-2"
+          className="flex min-w-0 flex-1 items-center gap-2.5"
           onClick={() => setMobileNavOpen(false)}
           /* The wordmark is a way home, not a nav item. Without this, TanStack
            * stamps `aria-current="page"` on it whenever /dashboard is open and
@@ -134,7 +154,7 @@ export function Sidebar() {
           <BrandMark />
           {!collapsed && (
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold leading-5 tracking-[-0.01em] text-gray-900">
+              <span className="block text-sm font-extrabold leading-5 tracking-[-0.02em] text-gray-900 [overflow-wrap:anywhere]">
                 {tenant.name}
               </span>
               {/* Where the removed header bar's caption went. Every academic
@@ -142,16 +162,23 @@ export function Sidebar() {
                 * term's figures without saying which term is one somebody will
                 * misread. */}
               {(session || period) && (
-                <span className="block truncate text-2xs leading-4 text-gray-600">
+                <span className="block truncate text-xs leading-4 text-gray-600">
                   {[session?.name, period?.name].filter(Boolean).join(' · ')}
                 </span>
               )}
             </span>
           )}
         </Link>
+        {!collapsed && (
+          <RailToggle collapsed={collapsed} onToggle={toggleRail} className="ml-auto hidden lg:flex" />
+        )}
       </div>
 
-      <RailToggle collapsed={collapsed} onToggle={toggleRail} />
+      {collapsed && (
+        <div className="hidden justify-center pb-1 lg:flex">
+          <RailToggle collapsed={collapsed} onToggle={toggleRail} />
+        </div>
+      )}
 
       {/* ── Sections ──────────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
@@ -181,92 +208,115 @@ export function Sidebar() {
       <div className={cn('shrink-0 border-t border-gray-200 pt-2', collapsed ? 'px-2' : 'px-2')}>
         <FooterLink
           to="/notifications"
-          icon={<Bell size={16} />}
+          icon={<Bell size={20} weight="bold" />}
           label="Notifications"
           collapsed={collapsed}
         />
-        <FooterLink to="/help" icon={<Question size={16} />} label="Help" collapsed={collapsed} />
-        <FooterLink to="/settings" icon={<Gear size={16} />} label="Settings" collapsed={collapsed} />
+        <FooterLink to="/help" icon={<Question size={20} weight="bold" />} label="Help" collapsed={collapsed} />
+        <FooterLink to="/settings" icon={<Gear size={20} weight="bold" />} label="Settings" collapsed={collapsed} />
       </div>
 
       {/* ── Account ───────────────────────────────────────────────────── */}
-      <div className={cn('shrink-0 border-t border-gray-200 p-2')}>
-        <Menu
-          align="start"
-          items={[
-            {
-              key: 'account',
-              label: 'Your account',
-              icon: <UserCircle size={15} />,
-              onSelect: () => navigate({ to: '/account' }),
-            },
-            {
-              key: 'signout',
-              label: 'Sign out',
-              icon: <SignOut size={15} />,
-              destructive: true,
-              separated: true,
-              onSelect: signOut,
-            },
-          ]}
-          side="top"
-          className="w-52"
-          trigger={({ toggle, ref }) => (
-            <button
-              ref={ref as never}
-              type="button"
-              onClick={toggle}
-              className={cn(
-                'flex w-full items-center gap-2 rounded-md py-1.5 transition-colors hover:bg-gray-200',
-                collapsed ? 'justify-center px-1' : 'px-1.5',
-              )}
+      {/*
+        * Two controls, not one.
+        *
+        * The person is a LINK to their own account, because that is what
+        * clicking your own name means everywhere else on the web — and the
+        * caret beside it opens the menu that also holds signing out. One
+        * button doing both meant the only way to reach your profile was
+        * through a menu you had to know was there.
+        *
+        * Collapsed there is no room for two, so the avatar opens the menu and
+        * "Your account" inside it is the way through.
+        */}
+      <div className="shrink-0 border-t border-gray-200 p-2">
+        {collapsed ? (
+          <Menu
+            align="start"
+            side="top"
+            className="w-52"
+            items={accountMenu}
+            trigger={({ toggle, ref }) => (
+              <button
+                ref={ref as never}
+                type="button"
+                onClick={toggle}
+                aria-label={account?.name ? `${account.name} — account menu` : 'Account menu'}
+                className="flex w-full items-center justify-center rounded-md px-1 py-1.5 transition-colors hover:bg-gray-200"
+              >
+                <Avatar name={account?.name} size="sm" />
+              </button>
+            )}
+          />
+        ) : (
+          <div className="flex items-center gap-1">
+            <Link
+              to="/account"
+              onClick={() => setMobileNavOpen(false)}
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-gray-200"
+              activeProps={{ className: 'bg-rail-active' }}
             >
-              <Avatar name={account?.name} size="sm" />
-              {!collapsed && (
-                <>
-                  <span className="min-w-0 flex-1 text-left">
-                    <span className="block truncate text-xs font-medium text-gray-900">
-                      {account?.name ?? 'Signed in'}
-                    </span>
-                    <span className="block truncate text-2xs text-gray-600">
-                      {membership?.is_platform_admin ? 'Platform admin' : (account?.email ?? '')}
-                    </span>
-                  </span>
-                  <CaretUpDown size={13} className="shrink-0 text-gray-600" />
-                </>
+              <Avatar name={account?.name} size="sm" className="shrink-0" />
+
+              {/* `overflow-hidden` as well as `min-w-0`: the truncation below
+                * only clips if this column is genuinely bounded, and a long
+                * address is the common case rather than the edge one. */}
+              <span className="min-w-0 flex-1 overflow-hidden text-left">
+                <span className="block truncate text-sm font-semibold leading-5 text-gray-900">
+                  {account?.name ?? 'Signed in'}
+                </span>
+                <span className="block truncate text-xs leading-4 text-gray-600">
+                  {membership?.is_platform_admin ? 'Platform admin' : (account?.email ?? '')}
+                </span>
+              </span>
+            </Link>
+
+            <Menu
+              align="end"
+              side="top"
+              className="w-52"
+              items={accountMenu}
+              trigger={({ toggle, ref, open }) => (
+                <button
+                  ref={ref as never}
+                  type="button"
+                  onClick={toggle}
+                  aria-label="Account menu"
+                  aria-expanded={open}
+                  className={cn(
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-600 transition-colors',
+                    'hover:bg-gray-200 hover:text-gray-900',
+                    open && 'bg-gray-200 text-gray-900',
+                  )}
+                >
+                  <CaretUpDown size={15} weight="bold" />
+                </button>
               )}
-            </button>
-          )}
-        />
+            />
+          </div>
+        )}
       </div>
+
     </nav>
   )
 }
 
 /**
- * The collapse control, sitting ON the rail's edge.
+ * The collapse control, in the wordmark row — the same place Sprig puts it.
  *
- * It used to be two buttons: one tucked into the header row beside the
- * wordmark, and — because there is no room for it beside a 24px mark — a
- * second one on its own centred row underneath when collapsed. That second row
- * pushed the whole tree down by 32px on collapse, so the rail's first item
- * moved every time you toggled, and neither button sat anywhere memorable.
- *
- * One button now, pinned to the hairline and centred on the 48px wordmark row,
- * half in the rail and half on the canvas. The edge is the thing it moves, so
- * the edge is where it belongs, and it stays put between the two states: only
- * the caret flips to point the way the rail is about to travel. Because it is
- * absolutely positioned against the `nav`, it rides the width transition
- * instead of jumping when the rail animates.
- *
- * A white disc on a #f9f9f9 ground with a hairline and the faintest shadow —
- * elevation is how it reads as sitting ON the seam rather than in either
- * surface. It is the only round thing in the rail, which is what makes it
- * findable at a glance in a tree of sixty square rows.
- *
- * Hidden below `lg`, where the rail is a drawer with nothing to collapse.
+ * A ghost caret, 32px, right of the institution name. When the rail is
+ * collapsed there is no room beside the mark, so the same button sits on the
+ * row underneath. Hidden below `lg`, where the rail is a drawer.
  */
-function RailToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+function RailToggle({
+  collapsed,
+  onToggle,
+  className,
+}: {
+  collapsed: boolean
+  onToggle: () => void
+  className?: string
+}) {
   const Caret = collapsed ? CaretRight : CaretLeft
 
   return (
@@ -276,15 +326,14 @@ function RailToggle({ collapsed, onToggle }: { collapsed: boolean; onToggle: () 
       aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       aria-expanded={!collapsed}
       className={cn(
-        'absolute right-0 top-3 z-20 hidden h-6 w-6 translate-x-1/2 items-center justify-center',
-        'rounded-full border border-gray-200 bg-white text-gray-500 shadow-xs lg:flex',
-        'transition-[color,border-color,transform] duration-150',
-        'hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-rail',
-        'active:scale-90',
+        'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-500',
+        'transition-colors duration-150',
+        'hover:bg-gray-200 hover:text-gray-900',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400',
+        className,
       )}
     >
-      <Caret size={11} weight="bold" />
+      <Caret size={16} weight="bold" />
     </button>
   )
 }
@@ -329,13 +378,28 @@ function Section({
   navLabel: NavLabels
   onNavigate: () => void
 }) {
-  const items = section.children.filter((item) => item.route)
+  /*
+   * Four modules are hidden here and shown in Settings instead — Structure,
+   * Sessions, Periods and Year groups are the institution's shape rather than
+   * places anyone works, and they were sitting above Programmes and Subjects
+   * in the list the registrar actually uses.
+   *
+   * The set comes from `features/settings/sections`, which is also what builds
+   * the Settings sub-nav, so a module cannot end up hidden here and missing
+   * there. Nothing about the API changes: the modules still resolve, the
+   * permissions still gate, and every route behind them still re-checks
+   * server-side. Where a link lives is the one thing `NavigationResource`
+   * deliberately leaves to the client.
+   */
+  const items = section.children.filter(
+    (item) => item.route && !SETTINGS_OWNED_MODULES.has(item.module_id ?? item.key),
+  )
   if (items.length === 0) return null
 
   return (
     <div className={cn(first ? 'pt-1' : 'pt-5')}>
       {!collapsed && (
-        <p className="px-2 pb-1 text-sm font-semibold leading-5 text-gray-900">
+        <p className="px-2.5 pb-1.5 text-sm font-bold leading-5 text-gray-900">
           {navLabel.section(section)}
         </p>
       )}
@@ -394,7 +458,7 @@ function NavRow({
       title={full}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group flex items-center gap-2.5 rounded-md text-sm leading-5 transition-colors',
+        'group flex items-center gap-3 rounded-lg text-sm leading-5 transition-colors',
         collapsed ? 'h-10 w-10 justify-center' : 'h-10 px-2.5',
         active
           ? 'bg-rail-active font-semibold text-gray-900'
@@ -403,7 +467,8 @@ function NavRow({
     >
       <ModuleIcon
         name={item.icon ?? item.key}
-        size={16}
+        size={20}
+        weight="bold"
         className={cn('shrink-0', active ? 'text-gray-900' : 'text-gray-500')}
       />
       {!collapsed && (
@@ -462,7 +527,7 @@ function QuickCreate({
         .map((action) => ({
           key: action.key,
           label: navLabel.item(action),
-          icon: <ModuleIcon name={action.icon ?? action.key} size={15} />,
+          icon: <ModuleIcon name={action.icon ?? action.key} size={18} weight="bold" />,
           onSelect: () => navigate({ to: `/${action.route}` }),
         }))}
       trigger={({ toggle, ref }) => (
@@ -472,18 +537,18 @@ function QuickCreate({
           onClick={toggle}
           aria-label="Quick actions"
           className={cn(
-            'flex items-center rounded-md bg-brand-400 font-medium text-gray-900 transition-colors hover:bg-brand-500',
+            'flex items-center rounded-lg bg-brand-400 font-semibold text-gray-900 transition-colors hover:bg-brand-500',
             collapsed
-              ? 'h-9 w-9 justify-center'
-              : 'h-9 w-full justify-between px-3 text-sm',
+              ? 'h-10 w-10 justify-center'
+              : 'h-10 w-full justify-between px-3.5 text-sm',
           )}
         >
           {collapsed ? (
-            <Plus size={15} weight="bold" />
+            <Plus size={18} weight="bold" />
           ) : (
             <>
               <span>Quick actions</span>
-              <Plus size={14} weight="bold" />
+              <Plus size={16} weight="bold" />
             </>
           )}
         </button>
@@ -507,7 +572,7 @@ function FooterLink({
     <Link
       to={to}
       className={cn(
-        'flex items-center gap-2.5 rounded-md text-sm leading-5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900',
+        'flex items-center gap-3 rounded-lg text-sm leading-5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900',
         collapsed ? 'h-10 w-10 justify-center' : 'h-10 px-2.5',
       )}
       activeProps={{ className: 'bg-rail-active text-gray-900 font-semibold' }}
@@ -559,8 +624,8 @@ function RailSkeleton({ collapsed }: { collapsed: boolean }) {
 /** The mark. Yellow tile, dark glyph — the same relationship the CTA has. */
 function BrandMark() {
   return (
-    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[0.3rem] bg-brand-400">
-      <svg viewBox="0 0 32 32" className="h-4 w-4" aria-hidden>
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-400">
+      <svg viewBox="0 0 32 32" className="h-5 w-5" aria-hidden>
         <path d="M16 7 5.5 12.2 16 17.4l10.5-5.2L16 7Z" className="fill-gray-900" />
         <path
           d="M9.2 15.6v5.1c0 1.9 3 3.4 6.8 3.4s6.8-1.5 6.8-3.4v-5.1L16 19l-6.8-3.4Z"

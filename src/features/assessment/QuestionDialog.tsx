@@ -398,7 +398,7 @@ export function QuestionDialog({
             <Button
               size="sm"
               variant="link"
-              icon={<Plus size={13} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               className="mt-2"
               onClick={() =>
                 options.append({ content: '', is_correct: false, match_key: '', feedback: '' })

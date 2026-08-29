@@ -152,8 +152,32 @@ export const lessonsApi = {
     put<LearningModule>(`${TEACHING}/${moduleId}/lessons/order`, { lesson_ids: lessonIds }),
 }
 
+/**
+ * The same material, as the class reads it.
+ *
+ * `module:lms` and no `staff`. Reach is identical to the teaching listing — the
+ * API narrows both with the same Action — and the only difference is
+ * visibility: this side sees published units, and inside them, published
+ * lessons. A draft is a 404 rather than a 403, so a learner cannot tell a unit
+ * that is not ready from one that does not exist.
+ */
+export const lessonsPortalApi = {
+  modules: () => getPage<LearningModule>('/portal/learning/modules', { params: {} }),
+
+  module: (id: string) => get<LearningModule>(`/portal/learning/modules/${id}`),
+
+  /** The only call on this surface that carries a body. */
+  lesson: (moduleId: string, lessonId: string) =>
+    get<Lesson>(`/portal/learning/modules/${moduleId}/lessons/${lessonId}`),
+}
+
 export const lessonKeys = {
   root: ['teaching', 'learning-modules'] as const,
+  portalRoot: ['portal', 'learning'] as const,
+  portalModules: ['portal', 'learning', 'modules'] as const,
+  portalModule: (id: string) => ['portal', 'learning', 'modules', id] as const,
+  portalLesson: (moduleId: string, lessonId: string) =>
+    ['portal', 'learning', 'modules', moduleId, 'lessons', lessonId] as const,
   modules: (params: unknown) => ['teaching', 'learning-modules', 'list', params] as const,
   module: (id: string) => ['teaching', 'learning-modules', 'detail', id] as const,
   lesson: (moduleId: string, lessonId: string) =>

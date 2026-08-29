@@ -23,7 +23,7 @@ export function Pagination({
 
   return (
     <div className={`flex flex-wrap items-center justify-between gap-3 py-3 ${className ?? ''}`}>
-      <p className="text-xs text-gray-600">
+      <p className="text-sm text-gray-600">
         {total === 0 ? (
           'No results'
         ) : (
@@ -40,18 +40,18 @@ export function Pagination({
         <div className="flex items-center gap-1.5">
           <Button
             size="sm"
-            icon={<CaretLeft size={12} weight="bold" />}
+            icon={<CaretLeft size={14} weight="bold" />}
             disabled={current_page <= 1}
             onClick={() => onPageChange(current_page - 1)}
           >
             Previous
           </Button>
-          <span className="px-1 text-xs text-gray-600 tabular">
+          <span className="px-1 text-sm text-gray-600 tabular">
             {current_page} / {last_page}
           </span>
           <Button
             size="sm"
-            trailing={<CaretRight size={12} weight="bold" />}
+            trailing={<CaretRight size={14} weight="bold" />}
             disabled={current_page >= last_page}
             onClick={() => onPageChange(current_page + 1)}
           >

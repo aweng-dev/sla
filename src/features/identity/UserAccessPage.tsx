@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -28,6 +28,7 @@ import { identityApi, identityKeys } from './identity.api'
 import { GrantDialog } from './GrantDialog'
 import { kindLabel } from './UsersPage'
 import type { ResolvedModule } from './identity.types'
+import { CoverageLegend, CoverageMap } from './CoverageMap'
 
 /**
  * What one person can actually reach, and why.
@@ -162,12 +163,25 @@ export function UserAccessPage() {
           canManage && (
             <Button
               variant="primary"
-              icon={<Plus size={13} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => setGranting(true)}
             >
               Grant access
             </Button>
           )
+        }
+        tabs={
+          <Tabs
+            bare
+            baseId={baseId}
+            items={[
+              { key: 'modules', label: 'Modules', count: enabled.length },
+              { key: 'permissions', label: 'Permissions', count: resolved.permissions.length },
+              { key: 'scopes', label: 'Scopes' },
+            ]}
+            value={tab}
+            onChange={(key) => setTab(key as typeof tab)}
+          />
         }
       />
 
@@ -182,22 +196,10 @@ export function UserAccessPage() {
       )}
 
       <div>
-        <Tabs
-          baseId={baseId}
-          items={[
-            { key: 'modules', label: 'Modules', count: enabled.length },
-            { key: 'permissions', label: 'Permissions', count: resolved.permissions.length },
-            { key: 'scopes', label: 'Scopes' },
-          ]}
-          value={tab}
-          onChange={(key) => setTab(key as typeof tab)}
-        />
-
         <div
           role="tabpanel"
           id={panelId(baseId, tab)}
           aria-labelledby={`${baseId}-tab-${tab}`}
-          className="pt-5"
         >
           {tab === 'modules' && <ModulesPanel modules={resolved.modules} />}
 
@@ -235,6 +237,9 @@ export function UserAccessPage() {
  * opens when a colleague says they cannot see something.
  */
 function ModulesPanel({ modules }: { modules: ResolvedModule[] }) {
+  const [active, setActive] = useState<string | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+
   const byDomain = useMemo(() => {
     const map = new Map<string, ResolvedModule[]>()
     for (const m of modules) {
@@ -245,52 +250,114 @@ function ModulesPanel({ modules }: { modules: ResolvedModule[] }) {
     return [...map.entries()]
   }, [modules])
 
+  const fingerprint = useMemo(() => modulesAsCoverage(modules), [modules])
+  const on = modules.filter((m) => m.enabled).length
+
+  function reveal(id: string) {
+    setActive(id)
+    const node = listRef.current?.querySelector(`[data-module="${CSS.escape(id)}"]`)
+    node?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }
+
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-      {byDomain.map(([domain, group], index) => (
-        <div key={domain}>
-          <p
-            className={cn(
-              'bg-table-head px-4 py-1.5 text-2xs font-semibold uppercase tracking-[0.04em] text-gray-600',
-              index > 0 && 'border-t border-gray-200',
-            )}
-          >
-            {humanize(domain)}
+    <div className="flex flex-col gap-4">
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold tabular text-gray-900">{on}</span> of {modules.length}{' '}
+            modules on
           </p>
-          <ul>
-            {group.map((module) => (
-              <li
-                key={module.id}
-                className="flex items-center gap-3 border-t border-gray-200 px-4 py-2.5"
-              >
-                {module.enabled ? (
-                  <CheckCircle size={15} weight="fill" className="shrink-0 text-success-500" />
-                ) : (
-                  <Circle size={15} className="shrink-0 text-gray-300" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={cn(
-                      'truncate text-sm',
-                      module.enabled ? 'text-gray-900' : 'text-gray-600',
-                    )}
-                  >
-                    {module.name}
-                  </p>
-                  {module.enabled && module.capabilities.granted.length > 0 && (
-                    <p className="truncate text-2xs text-gray-600">
-                      {module.capabilities.granted.length} capabilities
-                    </p>
-                  )}
-                </div>
-                <span className="shrink-0 text-2xs text-gray-600">{sourceLabel(module.source)}</span>
-              </li>
-            ))}
-          </ul>
+          <CoverageLegend />
         </div>
-      ))}
+        <CoverageMap
+          domains={fingerprint}
+          density="module"
+          size="sm"
+          activeKey={active}
+          onSelect={reveal}
+        />
+      </div>
+
+      <div ref={listRef} className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        {byDomain.map(([domain, group], index) => (
+          <div key={domain}>
+            <p
+              className={cn(
+                'bg-table-head px-4 py-2 text-sm font-semibold text-gray-900',
+                index > 0 && 'border-t border-gray-200',
+              )}
+            >
+              {humanize(domain)}
+            </p>
+            <ul>
+              {group.map((module) => (
+                <li
+                  key={module.id}
+                  data-module={module.id}
+                  className={cn(
+                    'flex items-center gap-3 border-t border-gray-200 px-4 py-2.5',
+                    active === module.id && 'bg-accent-50/40',
+                  )}
+                >
+                  {module.enabled ? (
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm bg-gray-900" aria-hidden />
+                  ) : (
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-gray-200 bg-gray-50" aria-hidden />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={cn(
+                        'truncate text-sm',
+                        module.enabled ? 'font-medium text-gray-900' : 'text-gray-600',
+                      )}
+                    >
+                      {module.name}
+                    </p>
+                    {module.enabled && module.capabilities.granted.length > 0 && (
+                      <p className="truncate text-2xs text-gray-600">
+                        {module.capabilities.granted.length} capabilities
+                      </p>
+                    )}
+                  </div>
+                  <span className="shrink-0 text-2xs text-gray-600">{sourceLabel(module.source)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   )
+}
+
+function modulesAsCoverage(modules: ResolvedModule[]): import('./coverage').DomainCoverage[] {
+  const map = new Map<string, import('./coverage').DomainCoverage>()
+  for (const module of modules) {
+    const cell = {
+      module: module.id,
+      name: module.name,
+      domain: module.domain,
+      total: 1,
+      held: module.enabled ? 1 : 0,
+      privilegedTotal: 0,
+      privilegedHeld: 0,
+    }
+    const existing = map.get(module.domain)
+    if (existing) {
+      existing.total += 1
+      existing.held += cell.held
+      existing.modules.push(cell)
+    } else {
+      map.set(module.domain, {
+        domain: module.domain,
+        total: 1,
+        held: cell.held,
+        privilegedHeld: 0,
+        modules: [cell],
+      })
+    }
+  }
+  return [...map.values()]
 }
 
 /** The API's `source` values, in words a reader can act on. */
@@ -502,9 +569,9 @@ function Back() {
   return (
     <Link
       to="/authentication"
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       All people
     </Link>
   )

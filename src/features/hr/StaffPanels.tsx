@@ -256,7 +256,7 @@ export function StaffQualifications({
     <div>
       {canManage && (
         <div className="flex justify-end pb-3">
-          <Button icon={<Plus size={14} weight="bold" />} onClick={onAdd}>
+          <Button trailing={<Plus size={16} weight="bold" />} onClick={onAdd}>
             Add qualification
           </Button>
         </div>

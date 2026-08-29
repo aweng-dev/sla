@@ -205,7 +205,7 @@ function StaffGuardiansPage() {
   }
 
   const addAction = perms.has('guardians.manage') ? (
-    <Button variant="primary" icon={<Plus size={14} weight="bold" />} onClick={() => setAdding(true)}>
+    <Button variant="primary" trailing={<Plus size={16} weight="bold" />} onClick={() => setAdding(true)}>
       Add {t('guardian').toLowerCase()}
     </Button>
   ) : null
@@ -221,16 +221,18 @@ function StaffGuardiansPage() {
 
   return (
     <PageStack>
-      <PageHeader title={t('guardians')} />
+      <PageHeader title={t('guardians')}
+        tabs={
+          <Tabs bare
+            items={tabs}
+            value={activeTab}
+            onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
+            baseId={tabsId}
+          />
+        }
+      />
 
       <div>
-        <Tabs
-          items={tabs}
-          value={activeTab}
-          onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
-          baseId={tabsId}
-        />
-
         {/* The tabs choose a status, and the status narrows everything under
             them — the filters, the table and its pager are the panel. */}
         <div

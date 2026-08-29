@@ -2,7 +2,6 @@ import { useId, useMemo, useState } from 'react'
 import { Link, useParams, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import {
-  ArrowLeft,
   FirstAidKit,
   Warning,
   GraduationCap,
@@ -129,21 +128,20 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
   const [tab, setTab] = useState('overview')
   const active = tabs.some((item) => item.key === tab) ? tab : 'overview'
 
-  const backLink = (
+  const listHref = (
     <Link
       to="/students"
       search={toStudentListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
+      className="transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
-      All {t('learners').toLowerCase()}
+      {t('learners')}
     </Link>
   )
 
   if (record.isError) {
     return (
       <PageStack>
-        {backLink}
+        <PageHeader title={t('learners')} />
         <ErrorState error={record.error} onRetry={() => record.refetch()} />
       </PageStack>
     )
@@ -153,18 +151,18 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
 
   return (
     <PageStack>
-      {backLink}
-
       <PageHeader
         icon={
           <EntityIcon tone="accent">
-            <StudentIcon size={18} />
+            <StudentIcon size={20} weight="bold" />
           </EntityIcon>
         }
-        title={data ? data.person.full_name : <Skeleton className="h-5 w-48" />}
+        title={data ? data.person.full_name : <Skeleton className="h-6 w-48" />}
         meta={
           data ? (
             <>
+              {listHref}
+              <MetaDot />
               <span className="tabular">{data.student_number}</span>
               <MetaDot />
               <span>
@@ -186,11 +184,12 @@ function StaffStudentDetailPage({ studentId }: { studentId: string }) {
           )
         }
         actions={data ? <StudentActions student={data} /> : undefined}
+        tabs={
+          <Tabs bare items={tabs} value={active} onChange={setTab} baseId={tabsId} />
+        }
       />
 
       <div className="flex flex-col gap-4">
-        <Tabs items={tabs} value={active} onChange={setTab} baseId={tabsId} />
-
         <div
           role="tabpanel"
           id={panelId(tabsId, active)}

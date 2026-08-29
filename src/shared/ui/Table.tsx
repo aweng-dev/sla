@@ -9,8 +9,8 @@ import { EmptyState } from './EmptyState'
  * The dense table Sprig runs everywhere.
  *
  * Sampled proportions: a #faf8f4 header band — the one warm neutral in the
- * system — 12px header labels in secondary ink, 13px cells in primary ink,
- * ~38px rows, and a #efefef hairline under each. No zebra striping, no
+ * system — 12px header labels in secondary ink, 15px cells in primary ink,
+ * ~48px rows, and a #efefef hairline under each. No zebra striping, no
  * vertical rules, no shadow. Numbers are tabular so columns line up.
  *
  * ── Why the columns are data and not JSX ───────────────────────────────────
@@ -129,7 +129,7 @@ export function DataTable<T>({
      */
     <div className={cn('w-full overflow-hidden rounded-lg border border-gray-200', className)}>
       <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse text-left">
+        <table className="w-full border-collapse text-left">
         <thead>
           <tr className="border-b border-gray-200 bg-table-head">
             {selectable && (
@@ -153,7 +153,7 @@ export function DataTable<T>({
                     active ? (sort!.direction === 'asc' ? 'ascending' : 'descending') : undefined
                   }
                   className={cn(
-                    'whitespace-nowrap px-3 py-2 text-2xs font-medium leading-4 text-gray-600',
+                    'whitespace-nowrap px-3 py-2.5 text-2xs font-medium leading-4 text-gray-600',
                     column.numeric && 'text-right',
                     column.className,
                   )}
@@ -170,12 +170,12 @@ export function DataTable<T>({
                       {column.header}
                       {active ? (
                         sort!.direction === 'asc' ? (
-                          <CaretUp size={11} weight="bold" />
+                          <CaretUp size={12} weight="bold" />
                         ) : (
-                          <CaretDown size={11} weight="bold" />
+                          <CaretDown size={12} weight="bold" />
                         )
                       ) : (
-                        <CaretDown size={11} className="text-gray-400" />
+                        <CaretDown size={12} className="text-gray-400" />
                       )}
                     </button>
                   ) : (
@@ -192,7 +192,7 @@ export function DataTable<T>({
             Array.from({ length: skeletonRows }).map((_, i) => (
               <tr key={`skeleton-${i}`} className="border-b border-gray-200 last:border-b-0">
                 {Array.from({ length: totalColumns }).map((__, j) => (
-                  <td key={j} className="px-4 py-4">
+                  <td key={j} className="px-4 py-3.5">
                     <div className="h-3 w-full max-w-[10rem] animate-pulse rounded bg-gray-100" />
                   </td>
                 ))}
@@ -244,7 +244,7 @@ export function DataTable<T>({
                   )}
                 >
                   {selectable && (
-                    <td className="w-11 px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                    <td className="w-11 px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selected}
                         onChange={() => toggleRow(id)}
@@ -256,7 +256,7 @@ export function DataTable<T>({
                     <td
                       key={column.key}
                       className={cn(
-                        'px-3 py-2 text-sm leading-5 text-gray-900',
+                        'px-3 py-3 text-sm leading-5 text-gray-900',
                         column.numeric && 'text-right tabular',
                         column.className,
                       )}
@@ -288,7 +288,7 @@ export function DataTable<T>({
  * A cell with an optional muted second line.
  *
  * Use the second line SPARINGLY. Sprig's tables are single-line — a row is one
- * line of 13px text in a ~34px row — and stacking two lines in every row is
+ * line of 15px text in a ~48px row — and stacking two lines in every row is
  * what turns a dense roster into a list of cards. If the secondary value has a
  * column of its own, put it there instead of under the name.
  */

@@ -29,22 +29,22 @@ export function StatTile({
   className?: string
 }) {
   return (
-    <div className={cn('rounded-lg border border-gray-200 bg-white p-4', className)}>
+    <div className={cn('rounded-lg border border-gray-200 bg-white p-5', className)}>
       <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium text-gray-600">{label}</p>
+        <p className="text-sm font-medium text-gray-600">{label}</p>
         {icon && <span className="shrink-0 text-gray-400">{icon}</span>}
       </div>
 
       {loading ? (
-        <Skeleton className="mt-2 h-7 w-20" />
+        <Skeleton className="mt-2 h-8 w-20" />
       ) : (
-        <p className="mt-1.5 text-2xl font-semibold tracking-[-0.02em] text-gray-900 tabular">
+        <p className="mt-1.5 text-2xl font-bold tracking-[-0.02em] text-gray-900 tabular">
           {value}
         </p>
       )}
 
       {(delta || hint) && !loading && (
-        <p className="mt-1 text-xs">
+        <p className="mt-1.5 text-sm">
           {delta && (
             <span
               className={cn(

@@ -99,34 +99,34 @@ export default {
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       /*
-       * ── Measured against Sprig, not guessed ──────────────────────────────
+       * ── Measured against Sprig captures ──────────────────────────────────
        *
-       * An earlier pass read Sprig as a very small, dense product and set the
-       * body to 13px. Rendering both at the same scale and measuring the ink
-       * showed the opposite: Sprig's nav and table text are roughly a step
-       * LARGER than that, and its rows breathe. Sprig is compact in its
-       * chrome, not in its type.
-       *
-       * So the scale sits one step up: 14px carries the body, the nav and the
-       * table; 12px is the table header and the micro label; 22px is a page
-       * title. Components name these rather than writing arbitrary values, so
-       * this block is the one place the whole product's size is decided.
+       * Sprig's TT Commons Pro reads heavier and larger than Figtree at the
+       * same px, so the scale sits on 15px for body/nav/table/buttons, 24px
+       * extra-bold for page titles, 28px for greetings, 20px for entity
+       * titles next to an identity icon. 12px stays the table-header and
+       * badge size. Components name these rather than writing arbitrary
+       * values, so this block is the one place the whole product's size is
+       * decided.
        */
       fontSize: {
         '2xs': ['0.75rem', { lineHeight: '1.125rem' }],
         xs: ['0.8125rem', { lineHeight: '1.25rem' }],
-        sm: ['0.875rem', { lineHeight: '1.375rem' }],
+        sm: ['0.9375rem', { lineHeight: '1.5rem' }],
         base: ['0.9375rem', { lineHeight: '1.5rem' }],
         md: ['1rem', { lineHeight: '1.5rem' }],
-        lg: ['1.125rem', { lineHeight: '1.625rem' }],
-        xl: ['1.375rem', { lineHeight: '1.875rem' }],
-        '2xl': ['1.75rem', { lineHeight: '2.125rem' }],
+        lg: ['1.125rem', { lineHeight: '1.5rem' }],
+        xl: ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.02em' }],
+        '2xl': ['1.75rem', { lineHeight: '2.25rem', letterSpacing: '-0.025em' }],
         '3xl': ['2.125rem', { lineHeight: '2.5rem' }],
+        title: ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.02em', fontWeight: '800' }],
+        'title-sm': ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.02em', fontWeight: '700' }],
+        display: ['1.75rem', { lineHeight: '2.25rem', letterSpacing: '-0.025em', fontWeight: '800' }],
       },
       borderRadius: {
         sm: '0.25rem',
-        DEFAULT: '0.375rem',
-        md: '0.375rem',
+        DEFAULT: '0.5rem',
+        md: '0.5rem',
         lg: '0.5rem',
         xl: '0.75rem',
       },
@@ -141,7 +141,9 @@ export default {
       spacing: {
         rail: '14rem',
         'rail-collapsed': '3.5rem',
-        topbar: '3.25rem',
+        topbar: '3.5rem',
+        control: '2.25rem',
+        'control-sm': '2rem',
       },
       keyframes: {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },

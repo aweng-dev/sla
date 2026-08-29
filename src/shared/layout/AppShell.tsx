@@ -61,13 +61,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => setMobileNavOpen(true)}
           aria-label="Open navigation"
-          className="m-3 mb-0 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-700 transition-colors hover:bg-gray-100 lg:hidden"
+          className="m-3 mb-0 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-700 transition-colors hover:bg-gray-100 lg:hidden"
         >
-          <List size={18} />
+          <List size={22} weight="bold" />
         </button>
 
         <main className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-[100rem] px-5 pb-10 lg:px-8">
+          <div className="mx-auto w-full max-w-[100rem] px-4 pb-12 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>

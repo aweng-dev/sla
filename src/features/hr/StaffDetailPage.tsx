@@ -89,9 +89,9 @@ export function StaffDetailPage() {
     <Link
       to="/staff"
       search={toStaffListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       All staff
     </Link>
   )
@@ -143,19 +143,23 @@ export function StaffDetailPage() {
             </>
           )
         }
+        /* The header renders while the record loads; the strip only
+         * makes sense once there is something to tab between. */
+        tabs={
+          data ? (
+            <Tabs bare items={tabs} value={active} onChange={setTab} baseId={tabsId} />
+          ) : undefined
+        }
       />
 
       {record.isLoading && <StaffRecordSkeleton />}
 
       {data && (
         <div>
-          <Tabs items={tabs} value={active} onChange={setTab} baseId={tabsId} />
-
           <div
             role="tabpanel"
             id={panelId(tabsId, active)}
             aria-labelledby={`${tabsId}-tab-${active}`}
-            className="pt-5"
           >
             {active === 'overview' && <StaffOverview record={data} photo={photo} />}
             {active === 'assignments' && <StaffAssignments record={data} />}

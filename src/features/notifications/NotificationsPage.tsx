@@ -211,24 +211,24 @@ export function NotificationsPage() {
             </Button>
           ) : undefined
         }
+        tabs={
+          <Tabs bare
+            items={tabs.map((item) =>
+              item.key === 'notifications' && unread > 0 ? { ...item, count: unread } : item,
+            )}
+            value={tab}
+            onChange={(key) => setTab(key as TabKey)}
+            baseId={TABS_ID}
+          />
+        }
       />
 
       <div>
-        <Tabs
-          items={tabs.map((item) =>
-            item.key === 'notifications' && unread > 0 ? { ...item, count: unread } : item,
-          )}
-          value={tab}
-          onChange={(key) => setTab(key as TabKey)}
-          baseId={TABS_ID}
-        />
-
         {tab === 'notifications' && (
           <div
             role="tabpanel"
             id={panelId(TABS_ID, 'notifications')}
             aria-labelledby={`${TABS_ID}-tab-notifications`}
-            className="pt-4"
           >
             <Card>
               {/*
@@ -299,7 +299,6 @@ export function NotificationsPage() {
             role="tabpanel"
             id={panelId(TABS_ID, 'announcements')}
             aria-labelledby={`${TABS_ID}-tab-announcements`}
-            className="pt-4"
           >
             {/* The communications module owns the noticeboard; this tab borrows
               * it rather than keeping a second, thinner copy that drifts. Both
@@ -314,7 +313,6 @@ export function NotificationsPage() {
             role="tabpanel"
             id={panelId(TABS_ID, 'preferences')}
             aria-labelledby={`${TABS_ID}-tab-preferences`}
-            className="pt-4"
           >
             <PreferenceGrid />
           </div>

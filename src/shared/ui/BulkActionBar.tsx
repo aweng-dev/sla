@@ -26,8 +26,8 @@ export function BulkActionBar({
 
   return (
     <div className="pointer-events-none sticky bottom-4 z-30 flex justify-center">
-      <div className="pointer-events-auto flex animate-slide-up items-center gap-1 rounded-lg bg-ink-deep py-1.5 pl-3 pr-1.5 text-white shadow-float">
-        <span className="whitespace-nowrap text-xs font-medium tabular">
+      <div className="pointer-events-auto flex animate-slide-up items-center gap-1 rounded-lg bg-ink-deep py-2 pl-3.5 pr-1.5 text-white shadow-float">
+        <span className="whitespace-nowrap text-sm font-semibold tabular">
           {count} {count === 1 ? noun : `${noun}s`}
         </span>
         <span className="mx-1.5 h-4 w-px bg-white/20" aria-hidden />

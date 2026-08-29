@@ -17,7 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="relative flex w-full items-center">
       {icon && (
-        <span className="pointer-events-none absolute left-2.5 flex text-gray-500" aria-hidden>
+        <span className="pointer-events-none absolute left-3 flex text-gray-500" aria-hidden>
           {icon}
         </span>
       )}
@@ -25,19 +25,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          'w-full rounded-md border bg-white text-gray-900 transition-colors',
+          'w-full rounded-lg border bg-white text-gray-900 transition-colors',
           'placeholder:text-gray-500',
           'focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500',
-          inputSize === 'sm' ? 'h-7 text-xs' : 'h-8 text-sm',
-          icon ? 'pl-8' : 'pl-2.5',
-          trailing ? 'pr-8' : 'pr-2.5',
+          inputSize === 'sm' ? 'h-8 text-sm' : 'h-9 text-sm',
+          icon ? 'pl-9' : 'pl-3',
+          trailing ? 'pr-9' : 'pr-3',
           invalid ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500/25' : 'border-gray-300',
           className,
         )}
         {...props}
       />
-      {trailing && <span className="absolute right-2.5 flex text-gray-500">{trailing}</span>}
+      {trailing && <span className="absolute right-3 flex text-gray-500">{trailing}</span>}
     </div>
   )
 })
@@ -51,7 +51,7 @@ export const SearchInput = forwardRef<HTMLInputElement, Omit<InputProps, 'icon' 
         ref={ref}
         type="search"
         placeholder={placeholder}
-        icon={<MagnifyingGlass size={14} weight="bold" />}
+        icon={<MagnifyingGlass size={16} weight="bold" />}
         className={cn('w-56 [&::-webkit-search-cancel-button]:appearance-none', className)}
         {...props}
       />

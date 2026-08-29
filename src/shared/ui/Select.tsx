@@ -29,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          'h-8 w-full appearance-none rounded-md border bg-white pl-2.5 pr-7 text-sm text-gray-900',
+          'h-9 w-full appearance-none rounded-lg border bg-white pl-3 pr-8 text-sm text-gray-900',
           'transition-colors focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/30',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500',
           invalid ? 'border-danger-500' : 'border-gray-300',
@@ -49,9 +49,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         ))}
       </select>
       <CaretDown
-        size={11}
+        size={14}
         weight="bold"
-        className="pointer-events-none absolute right-2.5 text-gray-600"
+        className="pointer-events-none absolute right-3 text-gray-600"
       />
     </div>
   )

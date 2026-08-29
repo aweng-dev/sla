@@ -23,8 +23,9 @@ import {
 } from '@/shared/ui'
 import { ApiError } from '@/shared/api/envelope'
 import { formatDate, formatMoney, formatNumber, humanize } from '@/shared/lib/format'
-import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
-import { ModuleGate } from './components/ModuleGate'
+import { usePermissions, useTerminology, useViewer } from '@/features/tenant/TenantProvider'
+import { ModuleGate } from '@/shared/layout/ModuleGate'
+import { MyTransport } from '@/features/portal/components/MyTransport'
 import {
   transportApi,
   transportKeys,
@@ -58,6 +59,16 @@ const TABS_ID = 'transport-tabs'
 type TabKey = 'routes' | 'riders' | 'trips' | 'vehicles' | 'drivers'
 
 export function TransportPage() {
+  const viewer = useViewer()
+
+  /*
+   * `transport` lists `student_self` among its access profiles, so the rail
+   * draws this for a learner — correctly. The staff screen below speaks
+   * `/admin/…`, which carries the `staff` middleware and answers 403 to
+   * them, so the reader decides which of the API's two surfaces is shown.
+   */
+  const learner = viewer.surface === 'learner'
+
   const [tab, setTab] = useState<TabKey>('routes')
 
   const tabs: TabItem[] = [
@@ -74,10 +85,15 @@ export function TransportPage() {
       title="Transport"
       offTitle="This institution does not run transport"
       offDescription="The transport module is switched off here. An administrator can enable it from the institution's modules."
+      tabs={
+        <Tabs bare items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
+      }
     >
+      {learner ? (
+        <MyTransport />
+      ) : (
+        <>
       <div>
-        <Tabs items={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} baseId={TABS_ID} />
-
         <Panel id="routes" tab={tab}>
           <RoutesTab />
         </Panel>
@@ -94,6 +110,8 @@ export function TransportPage() {
           <DriversTab />
         </Panel>
       </div>
+        </>
+      )}
     </ModuleGate>
   )
 }
@@ -105,7 +123,6 @@ function Panel({ id, tab, children }: { id: TabKey; tab: TabKey; children: React
       role="tabpanel"
       id={panelId(TABS_ID, id)}
       aria-labelledby={`${TABS_ID}-tab-${id}`}
-      className="pt-4"
     >
       {children}
     </div>

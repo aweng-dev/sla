@@ -24,6 +24,8 @@ import { identityApi, identityKeys, unknownPermissions } from './identity.api'
 import { PermissionPicker } from './PermissionPicker'
 import { DeleteRoleDialog } from './RoleDialogs'
 import { humanRole } from './RolesPage'
+import { coverageOf } from './coverage'
+import { CoverageLegend, CoverageMap } from './CoverageMap'
 
 /**
  * One role.
@@ -44,6 +46,7 @@ export function RoleDetailPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [description, setDescription] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [focusModule, setFocusModule] = useState<string | null>(null)
 
   const role = useQuery({
     queryKey: identityKeys.role(roleId),
@@ -135,7 +138,7 @@ export function RoleDetailPage() {
       <PageHeader
         icon={
           <EntityIcon>
-            <ShieldCheck size={17} />
+            <ShieldCheck size={20} weight="bold" />
           </EntityIcon>
         }
         title={humanRole(saved.name)}
@@ -198,6 +201,25 @@ export function RoleDetailPage() {
         </div>
       )}
 
+      {catalogue.data && (
+        <Card>
+          <CardHeader
+            title="Reach"
+            subtitle="One cell per module. Fill is how much of it this role holds. Click a cell to open it."
+            actions={<CoverageLegend />}
+          />
+          <CardBody>
+            <CoverageMap
+              domains={coverageOf(catalogue.data.groups, selected)}
+              density="module"
+              size="md"
+              activeKey={focusModule}
+              onSelect={setFocusModule}
+            />
+          </CardBody>
+        </Card>
+      )}
+
       {editable && (
         <Card>
           <CardHeader title="Description" subtitle="What this role is for." />
@@ -222,13 +244,13 @@ export function RoleDetailPage() {
           title="Permissions"
           subtitle={
             editable
-              ? 'Everyone holding this role gets all of these.'
+              ? 'Everyone holding this role gets all of these. Tick a module to grant the lot.'
               : 'What this role grants. Read-only.'
           }
         />
         <CardBody>
           {errors.permissions && (
-            <p role="alert" className="mb-2 text-xs text-danger-500">
+            <p role="alert" className="mb-2 text-sm text-danger-500">
               {errors.permissions}
             </p>
           )}
@@ -241,6 +263,8 @@ export function RoleDetailPage() {
               onChange={setSelected}
               disabled={save.isPending}
               readOnly={!editable}
+              focusModule={focusModule}
+              showMap={false}
             />
           )}
         </CardBody>
@@ -249,7 +273,7 @@ export function RoleDetailPage() {
       {editable && dirty && (
         <div className="sticky bottom-4 z-30 flex justify-center">
           <div className="flex animate-slide-up items-center gap-3 rounded-lg bg-ink-deep py-2 pl-4 pr-2 text-white shadow-float">
-            <span className="whitespace-nowrap text-xs">
+            <span className="whitespace-nowrap text-sm">
               {diff.added.length > 0 && (
                 <span className="tabular">+{diff.added.length} added</span>
               )}
@@ -293,9 +317,9 @@ function Back() {
   return (
     <Link
       to="/rbac"
-      className="inline-flex items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       All roles
     </Link>
   )

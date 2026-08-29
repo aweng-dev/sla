@@ -167,7 +167,7 @@ export function InvoicesTab({ sessionId }: { sessionId?: string }) {
           perms.has('finance.manage') && (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => setGenerating(true)}
             >
               Generate invoice

@@ -1,3 +1,4 @@
+import type { AccessProfile, ModuleSource } from './access.types'
 import type { NavigationTree } from './navigation.types'
 import type { CurrentCalendar, InstitutionProfile } from './tenant.types'
 
@@ -64,6 +65,17 @@ export interface Module {
   description?: string | null
   domain?: string
   enabled: boolean
+  /**
+   * Why it resolved this way.
+   *
+   * On a DISABLED module this is the difference between two sentences a
+   * reader deserves to be told apart: `denied` means the institution does not
+   * have this module — wrong institution type for it, or not entitled — and
+   * anything else means the institution has it and this person does not reach
+   * it. A screen that said "your school does not run a gradebook" to a teacher
+   * who simply lacks the permission is lying to them.
+   */
+  source?: ModuleSource
   [key: string]: unknown
 }
 
@@ -76,7 +88,7 @@ export interface AccessContext {
    *  institution owner, 27 for a guardian. */
   permissions: string[]
   scopes: ScopeSet
-  profiles: string[]
+  profiles: AccessProfile[]
   institution: InstitutionProfile
   calendar: CurrentCalendar
 }

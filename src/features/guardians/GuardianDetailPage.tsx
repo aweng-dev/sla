@@ -72,9 +72,9 @@ export function GuardianDetailPage() {
     <Link
       to="/guardians"
       search={toGuardianListQuery(listSearch)}
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={12} weight="bold" />
+      <ArrowLeft size={16} weight="bold" />
       All {t('guardians').toLowerCase()}
     </Link>
   )
@@ -132,19 +132,23 @@ export function GuardianDetailPage() {
             </Button>
           ) : null
         }
+        /* The header renders while the record loads; the strip only
+         * makes sense once there is something to tab between. */
+        tabs={
+          data ? (
+            <Tabs bare items={tabs} value={active} onChange={setTab} baseId={tabsId} />
+          ) : undefined
+        }
       />
 
       {record.isLoading && <GuardianRecordSkeleton />}
 
       {data && (
         <div>
-          <Tabs items={tabs} value={active} onChange={setTab} baseId={tabsId} />
-
           <div
             role="tabpanel"
             id={panelId(tabsId, active)}
             aria-labelledby={`${tabsId}-tab-${active}`}
-            className="pt-4"
           >
             {active === 'overview' && <GuardianOverview record={data} />}
             {active === 'children' && <GuardianChildren guardianId={guardianId} />}

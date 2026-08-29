@@ -7,16 +7,15 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import {
   ArrowsLeftRight,
-  CaretDown,
+  DotsThree,
   GraduationCap,
   PencilSimple,
   SignOut,
   TrendUp,
 } from '@phosphor-icons/react'
-import { cn } from '@/shared/lib/cn'
 import { qk } from '@/shared/api/queryKeys'
 import { usePermissions, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
-import { Field, Input, Menu, Select, Textarea, type MenuItemSpec } from '@/shared/ui'
+import { Button, Field, Input, Menu, Select, Textarea, type MenuItemSpec } from '@/shared/ui'
 import { FieldRow, FormDialog } from '@/features/academics/components/FormDialog'
 import { useServerErrors } from '@/features/academics/components/useServerErrors'
 import {
@@ -69,34 +68,28 @@ export function StudentActions({ student }: { student: StudentRecord }) {
 
   const isOnRoll = student.status === 'active'
 
-  const items: MenuItemSpec[] = []
-  if (canManage) {
-    items.push({
-      key: 'edit',
-      label: 'Edit details',
-      icon: <PencilSimple size={15} />,
-      onSelect: () => setAction('edit'),
-    })
-  }
+  /* Sprig's entity header is a visible Edit plus an overflow. Edit is the
+   * common path; promote / transfer / withdraw / graduate live behind `•••`
+   * so the title row stays a pair of 36px controls. */
+  const overflow: MenuItemSpec[] = []
   if (canMoveOn && isOnRoll) {
-    items.push(
+    overflow.push(
       {
         key: 'promote',
         label: `Promote or hold back`,
-        icon: <TrendUp size={15} />,
-        separated: true,
+        icon: <TrendUp size={18} weight="bold" />,
         onSelect: () => setAction('promote'),
       },
       {
         key: 'transfer',
         label: 'Transfer',
-        icon: <ArrowsLeftRight size={15} />,
+        icon: <ArrowsLeftRight size={18} weight="bold" />,
         onSelect: () => setAction('transfer'),
       },
       {
         key: 'withdraw',
         label: 'Withdraw',
-        icon: <SignOut size={15} />,
+        icon: <SignOut size={18} weight="bold" />,
         destructive: true,
         separated: true,
         onSelect: () => setAction('withdraw'),
@@ -104,36 +97,42 @@ export function StudentActions({ student }: { student: StudentRecord }) {
       {
         key: 'graduate',
         label: 'Graduate',
-        icon: <GraduationCap size={15} />,
+        icon: <GraduationCap size={18} weight="bold" />,
         destructive: true,
         onSelect: () => setAction('graduate'),
       },
     )
   }
 
-  if (items.length === 0) return null
+  if (!canManage && overflow.length === 0) return null
 
   return (
     <>
-      <Menu
-        items={items}
-        trigger={({ toggle, ref, open }) => (
-          <button
-            ref={ref as never}
-            type="button"
-            onClick={toggle}
-            aria-expanded={open}
-            aria-haspopup="menu"
-            className={cn(
-              'inline-flex h-8 items-center gap-1.5 rounded-md border bg-white px-2.5 text-sm text-gray-900 transition-colors hover:bg-gray-50',
-              open ? 'border-gray-400' : 'border-gray-300',
-            )}
-          >
-            Actions
-            <CaretDown size={11} weight="bold" className="text-gray-600" />
-          </button>
-        )}
-      />
+      {canManage && (
+        <Button
+          icon={<PencilSimple size={16} weight="bold" />}
+          onClick={() => setAction('edit')}
+        >
+          Edit
+        </Button>
+      )}
+      {overflow.length > 0 && (
+        <Menu
+          items={overflow}
+          trigger={({ toggle, ref, open }) => (
+            <Button
+              ref={ref as never}
+              size="icon"
+              aria-label="More actions"
+              aria-expanded={open}
+              aria-haspopup="menu"
+              onClick={toggle}
+            >
+              <DotsThree size={20} weight="bold" />
+            </Button>
+          )}
+        />
+      )}
 
       {action === 'edit' && (
         <EditDialog student={student} onClose={() => setAction(null)} onSaved={() => settle('Saved')} />

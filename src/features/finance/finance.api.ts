@@ -1,6 +1,7 @@
 import { command, get, getPage, post } from '@/shared/api/client'
 import type { Paginated } from '@/shared/api/envelope'
 import type {
+  PaymentWebhookEvent,
   AllocatePaymentPayload,
   AssignStructurePayload,
   AwardScholarshipPayload,
@@ -28,6 +29,7 @@ export const financeKeys = {
   payments: (params?: unknown) => ['finance', 'payments', params] as const,
   payment: (id: string) => ['finance', 'payment', id] as const,
   refunds: (paymentId: string) => ['finance', 'refunds', paymentId] as const,
+  events: (params?: unknown) => ['finance', 'payment-events', params] as const,
   structures: (params?: unknown) => ['finance', 'structures', params] as const,
   structure: (id: string) => ['finance', 'structure', id] as const,
   plans: (params?: unknown) => ['finance', 'plans', params] as const,
@@ -133,6 +135,31 @@ export const financeApi = {
 
   balance: (studentId: string) =>
     get<StudentBalance>(`/admin/finance/students/${studentId}/balance`),
+
+  /**
+   * The gateway messages behind the payments.
+   *
+   * `unmatched` narrows to the two statuses a person has to act on —
+   * `exhausted` and `failed` — which is the queue rather than the log.
+   */
+  events: (params: { status?: string; provider?: string; unmatched?: boolean } = {}) =>
+    getPage<PaymentWebhookEvent>('/admin/finance/payment-events', {
+      params: prune({
+        status: params.status,
+        provider: params.provider,
+        unmatched: params.unmatched ? 1 : undefined,
+      }),
+    }),
+
+  /**
+   * Put one back through processing.
+   *
+   * Not a repair: it resets the event to `received` and runs the same
+   * processing again, so it fixes a transient failure and changes nothing about
+   * one that failed on its merits. Throttled server-side at 30 a minute.
+   */
+  replayEvent: (eventId: string) =>
+    post<PaymentWebhookEvent>(`/admin/finance/payment-events/${eventId}/replay`),
 
   feeCategories: () => get<FeeCategory[]>('/admin/catalog/fee-categories'),
 

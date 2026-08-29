@@ -4,35 +4,40 @@ import { cn } from '@/shared/lib/cn'
 /**
  * The title block at the top of every screen.
  *
- * Sprig's title is BOLD — measured off its own captures, where the entity
- * title is visibly heavier than a section heading — and the block is TIGHT:
- * the title, then immediately either a row of facts or the tabs. No
- * breadcrumb bar, no coloured banner, and no icon beside the title on a list
- * screen; the icon appears only on a detail screen, where it carries the
- * entity's identity.
+ * Sprig's canvas has no application chrome. The page begins with a title band:
+ * large extra-bold ink on the left, actions on the right, a full-bleed hairline
+ * under the band, then either tabs sitting on that rule or the toolbar.
+ *
+ * Sampled proportions (1440-wide captures):
+ *   - List title ("Studies") ~24px extra-bold, 20px above, 16px below
+ *   - Greeting ("Welcome to Sprig, Alex") ~28px extra-bold
+ *   - Entity title (next to a 32px identity tile) ~20px bold, with a meta row
+ *     of 13–15px facts immediately underneath
+ *   - Header actions are 36px tall, 8px apart, vertically centred on the title
+ *   - Tabs sit in the band; the active tab's 2px rule lands ON the hairline
  *
  * ── `description` is for a screen that genuinely needs a sentence ──────────
  *
- * Sprig uses none at all: its list pages are a title, and its entity pages a
- * title plus a compact meta row with inline icons. A prose line under every
- * title is what made these headers three stacked lines where Sprig has two,
- * and it is the single biggest reason the chrome read as a different product.
- * Prefer `meta`. Reach for `description` only where the screen would be
- * genuinely unclear without it.
+ * Sprig uses none at all on list pages. Prefer `meta`. Reach for `description`
+ * only where the screen would be genuinely unclear without it.
  */
 export function PageHeader({
   title,
   description,
   icon,
+  breadcrumb,
   meta,
   actions,
   tabs,
+  size,
   className,
 }: {
   title: ReactNode
   description?: ReactNode
   /** Entity identity on a detail screen — a tinted square, as Sprig draws it. */
   icon?: ReactNode
+  /** Wayfinding above the title: "Learners / Jane Doe", Sprig's breadcrumb. */
+  breadcrumb?: ReactNode
   /** A row of small facts under the title: status, owner, dates. */
   meta?: ReactNode
   actions?: ReactNode
@@ -41,23 +46,31 @@ export function PageHeader({
    *
    * Passed IN rather than rendered after, because in Sprig the tabs belong to
    * the header band: the strip sits under the title and the active tab's
-   * underline lands on the header's own rule. Rendering them as a separate
-   * block below produced two hairlines 30px apart, which is the single
-   * clearest tell that the chrome was not Sprig's.
+   * underline lands on the header's own rule.
    *
    * Pass `<Tabs bare … />` — this band draws the rule.
    */
   tabs?: ReactNode
+  /**
+   * `page` is the list/settings title (24px). `display` is the dashboard
+   * greeting (28px). Entity screens (an `icon` is present) use the 20px size
+   * regardless, matching Sprig's study-detail header.
+   */
+  size?: 'page' | 'display'
   className?: string
 }) {
+  const entity = Boolean(icon)
+  const display = size === 'display' && !entity
+
   return (
     <header
       className={cn(
-        /* Full-bleed rule, padded content. Measured off Sprig: the header's
-         * bottom border runs edge to edge across the canvas while the title
-         * sits on the same 32px gutter as everything below it. */
-        '-mx-5 border-b border-gray-200 px-5 pt-6 lg:-mx-8 lg:px-8',
-        tabs ? 'pb-0' : 'pb-5',
+        /* Full-bleed rule, padded content. The header's bottom border runs
+         * edge to edge across the canvas while the title sits on the same
+         * gutter as everything below it. */
+        '-mx-4 border-b border-gray-200 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
+        entity ? 'pt-4' : display ? 'pt-6' : 'pt-5',
+        tabs ? 'pb-0' : entity ? 'pb-3.5' : 'pb-4',
         className,
       )}
     >
@@ -65,21 +78,35 @@ export function PageHeader({
         <div className="flex min-w-0 items-start gap-3">
           {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-[-0.015em] text-gray-900">
+            {breadcrumb && (
+              <div className="mb-1 flex flex-wrap items-center gap-1.5 text-sm font-medium text-gray-600">
+                {breadcrumb}
+              </div>
+            )}
+            <h1
+              className={cn(
+                'truncate text-gray-900',
+                entity && 'text-title-sm',
+                display && 'text-display',
+                !entity && !display && 'text-title',
+              )}
+            >
               {title}
             </h1>
-            {description && <p className="mt-0.5 text-sm text-gray-600">{description}</p>}
+            {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
             {meta && (
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-gray-600">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-gray-600">
                 {meta}
               </div>
             )}
           </div>
         </div>
-        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+        {actions && (
+          <div className="flex shrink-0 items-center gap-2 pt-0.5">{actions}</div>
+        )}
       </div>
 
-      {tabs && <div className="mt-4">{tabs}</div>}
+      {tabs && <div className="mt-3">{tabs}</div>}
     </header>
   )
 }
@@ -95,13 +122,22 @@ export function EntityIcon({
   return (
     <span
       className={cn(
-        'flex h-9 w-9 items-center justify-center rounded-lg',
+        'flex h-8 w-8 items-center justify-center rounded-lg [&_svg]:h-5 [&_svg]:w-5',
         tone === 'accent' && 'bg-accent-100 text-accent-700',
         tone === 'brand' && 'bg-brand-200 text-gray-900',
         tone === 'neutral' && 'bg-gray-100 text-gray-700',
       )}
     >
       {children}
+    </span>
+  )
+}
+
+/** A slash between breadcrumb segments, matching Sprig's "Studies / Folder". */
+export function BreadcrumbSep() {
+  return (
+    <span className="text-gray-400" aria-hidden>
+      /
     </span>
   )
 }

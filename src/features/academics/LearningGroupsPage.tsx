@@ -271,7 +271,7 @@ export function LearningGroupsPage() {
           canManage ? (
             <Button
               variant="primary"
-              icon={<Plus size={14} weight="bold" />}
+              trailing={<Plus size={16} weight="bold" />}
               onClick={() => open(null)}
             >
               New {t('group').toLowerCase()}

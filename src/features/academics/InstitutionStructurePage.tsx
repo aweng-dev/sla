@@ -36,7 +36,13 @@ import type { CatalogItem } from './academics.types'
  * say the concept exists. What is always shown is the academic structure the
  * institution actually runs, which the profile spells out.
  */
-export function InstitutionStructurePage() {
+/**
+ * `embedded` renders this inside Settings, which supplies the page title and
+ * the description itself — so the screen drops its own `PageHeader` and keeps
+ * only the action that belongs to it. It is the same component either way;
+ * there is no second implementation for the settings copy to drift from.
+ */
+export function InstitutionStructurePage({ embedded = false }: { embedded?: boolean } = {}) {
   const t = useTerminology()
   const { access, tenant } = useTenant()
   const institution = access?.institution
@@ -69,8 +75,8 @@ export function InstitutionStructurePage() {
   ]
 
   return (
-    <PageStack>
-      <PageHeader title="Institution structure" />
+    <PageStack className={embedded ? 'gap-4' : undefined}>
+      {!embedded && <PageHeader title="Institution structure" />}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>

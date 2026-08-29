@@ -296,7 +296,7 @@ function BackLink() {
       to="/admissions"
       className="inline-flex w-fit items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
     >
-      <ArrowLeft size={13} />
+      <ArrowLeft size={16} weight="bold" />
       Back to the pipeline
     </Link>
   )

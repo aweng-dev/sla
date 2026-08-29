@@ -170,7 +170,7 @@ function StaffAssignmentDetail({ assignmentId }: { assignmentId: string }) {
         to="/assignments"
         className="inline-flex w-fit items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
       >
-        <ArrowLeft size={13} />
+        <ArrowLeft size={16} weight="bold" />
         All assignments
       </Link>
 
@@ -245,22 +245,24 @@ function StaffAssignmentDetail({ assignmentId }: { assignmentId: string }) {
             </button>
           </div>
         }
+        tabs={
+          <Tabs bare
+          baseId={tabsId}
+          value={tab}
+          onChange={(key) => setTab(key as 'summary' | 'submissions')}
+          items={[
+            { key: 'summary', label: 'Summary', icon: <ClipboardText size={14} /> },
+            {
+              key: 'submissions',
+              label: 'Submissions',
+              icon: <ChatText size={14} />,
+              count: submissions.data?.pagination.total,
+            },
+          ]}
+        />
+        }
       />
 
-      <Tabs
-        baseId={tabsId}
-        value={tab}
-        onChange={(key) => setTab(key as 'summary' | 'submissions')}
-        items={[
-          { key: 'summary', label: 'Summary', icon: <ClipboardText size={14} /> },
-          {
-            key: 'submissions',
-            label: 'Submissions',
-            icon: <ChatText size={14} />,
-            count: submissions.data?.pagination.total,
-          },
-        ]}
-      />
 
       <div
         role="tabpanel"
@@ -685,7 +687,7 @@ function LearnerAssignmentDetail({ assignmentId }: { assignmentId: string }) {
         to="/assignments"
         className="inline-flex w-fit items-center gap-1.5 text-xs text-gray-600 transition-colors hover:text-gray-900"
       >
-        <ArrowLeft size={13} />
+        <ArrowLeft size={16} weight="bold" />
         All assignments
       </Link>
 

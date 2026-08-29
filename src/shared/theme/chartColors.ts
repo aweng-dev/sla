@@ -12,20 +12,26 @@ import palette from '../../../palette.js'
  * stock Tailwind after a "complete" palette swap.
  */
 
-/** Series colours, in the order they should be assigned. Ordered for
- *  distinguishability at small sizes rather than by hue. */
+/** Series colours, in Sprig's own order: purple, yellow, teal, magenta,
+ *  coral. Never green, never red. */
 export const CATEGORICAL: string[] = palette.categorical
 
-/** Named single-purpose chart colours. */
+/** Named single-purpose chart colours.
+ *
+ *  Sprig's charts never use emerald green or bright red as a series. The
+ *  "best" rating is purple, the "worst" is coral — see the five-bar rating
+ *  scale on https://mobbin.com/screens/983b06fe-bfd9-4c44-a56a-a39a8c347428.
+ *  Green is a toast fill only; keep it off plots. */
 export const CHART = {
   primary: palette.accent[500],
   primarySoft: palette.accent[100],
-  secondary: palette.brand[500],
+  secondary: palette.brand[400],
   secondarySoft: palette.brand[200],
-  positive: palette.success[500],
-  positiveSoft: palette.success[100],
-  negative: palette.danger[500],
-  negativeSoft: palette.danger[100],
+  tertiary: palette.teal[500],
+  positive: palette.accent[500],
+  positiveSoft: palette.accent[100],
+  negative: palette.coral[500],
+  negativeSoft: palette.coral[100],
   neutral: palette.neutral[300],
   grid: palette.neutral[200],
   axis: palette.neutral[600],
@@ -33,36 +39,34 @@ export const CHART = {
   tooltipInk: palette.surface.white,
 } as const
 
-/** Attainment bands, worst to best. Deliberately NOT a red-to-green ramp at
- *  both ends: a failing grade is red, but a passing one is the accent rather
- *  than green, because green here would read as "task complete". */
+/** Attainment bands, best to worst — Sprig's five-point rating series. */
 export const GRADE_BANDS = {
-  excellent: palette.success[500],
-  good: palette.accent[500],
-  fair: palette.brand[500],
-  poor: palette.coral[500],
-  fail: palette.danger[500],
+  excellent: palette.accent[500],
+  good: palette.brand[400],
+  fair: palette.teal[500],
+  poor: palette.magenta[500],
+  fail: palette.coral[500],
 } as const
 
-/** Status fills for chips and dots. */
+/** Status fills for chips and dots. Active is the accent (Sprig never
+ *  paints a green status chip). Coral stands in for "bad" because Sprig
+ *  never uses bright red as a fill. */
 export const STATUS_COLORS = {
-  active: palette.success[500],
-  pending: palette.brand[600],
+  active: palette.accent[500],
+  pending: palette.brand[400],
   inactive: palette.neutral[400],
   suspended: palette.coral[500],
   archived: palette.neutral[500],
-  failed: palette.danger[500],
+  failed: palette.coral[500],
 } as const
 
-/** Offered in colour pickers — a swatch grid a user chooses from. */
+/** Offered in colour pickers — Sprig's five series plus ink. */
 export const SWATCHES: string[] = [
   palette.accent[500],
   palette.brand[400],
-  palette.coral[500],
   palette.teal[500],
   palette.magenta[500],
-  palette.success[500],
-  palette.danger[500],
+  palette.coral[500],
   palette.neutral[700],
 ]
 

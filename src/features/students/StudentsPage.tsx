@@ -283,7 +283,11 @@ function StaffStudentsPage() {
   }
 
   const admitAction = perms.has('students.manage') ? (
-    <Button variant="primary" icon={<Plus size={14} weight="bold" />} onClick={() => setAdmitting(true)}>
+    <Button
+      variant="primary"
+      trailing={<Plus size={16} weight="bold" />}
+      onClick={() => setAdmitting(true)}
+    >
       Admit {t('learner').toLowerCase()}
     </Button>
   ) : null
@@ -299,16 +303,18 @@ function StaffStudentsPage() {
 
   return (
     <PageStack>
-      <PageHeader title={t('learners')} />
+      <PageHeader title={t('learners')}
+        tabs={
+          <Tabs bare
+            items={tabs}
+            value={activeTab}
+            onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
+            baseId={tabsId}
+          />
+        }
+      />
 
       <div>
-        <Tabs
-          items={tabs}
-          value={activeTab}
-          onChange={(key) => setSearch({ status: key === 'all' ? '' : key, page: 1 })}
-          baseId={tabsId}
-        />
-
         {/* The tabs choose a status, and the status narrows everything under
             them — the filters, the table and its pager are the panel. */}
         <div
