@@ -121,6 +121,32 @@ const coursesRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/academics/CoursesPage'), 'CoursesPage'),
 })
 
+/* One subject: the classes taking it, the curriculum each of them has, who
+ * teaches it and what they teach from. A detail route rather than a drawer,
+ * because a head of department sends somebody this link — see
+ * SubjectWorkspacePage. */
+const subjectRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/courses/$courseId',
+  component: lazyRouteComponent(
+    () => import('@/features/subjects/SubjectWorkspacePage'),
+    'SubjectWorkspacePage',
+  ),
+})
+
+/* One class's scheme of work, open for writing. Nested under the subject so
+ * the back link and the breadcrumb are the route, not a guess: a curriculum
+ * belongs to a class's assignment of ONE subject, and there is no address for
+ * it that does not name that subject. */
+const curriculumEditorRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/courses/$courseId/curriculum/$curriculumId',
+  component: lazyRouteComponent(
+    () => import('@/features/subjects/CurriculumEditorPage'),
+    'CurriculumEditorPage',
+  ),
+})
+
 const learningGroupsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/learning-groups',
@@ -236,6 +262,18 @@ const attendanceRoute = createRoute({
 /* The week, for whoever is asking. `/portal/timetable` resolves whose week to
  * return from the caller's own records, so one screen serves a teacher, a
  * student and a guardian — see TimetablePage. */
+/* One class: its roll, its subjects, its week, its registers and its marks.
+ * A detail route rather than a drawer, because a class page is the thing
+ * people send each other — see ClassDetailPage. */
+const classDetailRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/learning-groups/$groupId',
+  component: lazyRouteComponent(
+    () => import('@/features/classroom/ClassDetailPage'),
+    'ClassDetailPage',
+  ),
+})
+
 const timetableRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/timetable',
@@ -716,6 +754,8 @@ export const routeTree = rootRoute.addChildren([
     studentDetailRoute,
     programsRoute,
     coursesRoute,
+    subjectRoute,
+    curriculumEditorRoute,
     learningGroupsRoute,
     courseOfferingsRoute,
     enrollmentRoute,
@@ -728,6 +768,7 @@ export const routeTree = rootRoute.addChildren([
     guardiansRoute,
     guardianDetailRoute,
     securityRoute,
+    classDetailRoute,
     timetableRoute,
     accountingRoute,
     paymentPlansRoute,

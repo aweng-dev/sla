@@ -1,150 +1,286 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BookOpen } from '@phosphor-icons/react'
+import { ListChecks } from '@phosphor-icons/react'
 import { PER_PAGE_DEFAULT } from '@/shared/api/client'
 import { PageStack } from '@/shared/layout/AppShell'
-import { useTerminology } from '@/features/tenant/TenantProvider'
+import { formatDateTime, formatNumber } from '@/shared/lib/format'
+import { useTenant, useTerminology } from '@/features/tenant/TenantProvider'
 import {
-  Badge,
-  Card,
-  CardHeader,
+  Button,
+  DataTable,
   EmptyState,
   ErrorState,
-  Fact,
-  Facts,
   PageHeader,
-  Select,
-  Skeleton,
+  Pagination,
+  Toolbar,
+  type Column,
 } from '@/shared/ui'
-import { coursesApi } from './academics.api'
-import { academicsKeys } from './academics.keys'
+import { CurriculumStatusBadge } from '@/features/subjects/components/CurriculumStatusBadge'
+import {
+  curriculumApi,
+  curriculumKeys,
+  type CurriculumStatus,
+  type OfferingCurriculum,
+} from '@/features/subjects/curriculum.api'
+import {
+  FilterSelect,
+  useCourseCatalog,
+  useGroupCatalog,
+  usePeriodCatalog,
+  useSessionCatalog,
+} from './components/pickers'
 
 /**
- * The scheme of work behind one subject.
+ * Every scheme of work in the institution, across subjects.
  *
- * ── Read-only, and deliberately so ─────────────────────────────────────────
+ * ── What this screen used to be, and why it changed ────────────────────────
  *
- * `GET /admin/courses/{id}/curriculum` answers with `version: null`,
- * `editable: false` and no modules for every subject in this institution — no
- * curriculum version has been created. Authoring one is a multi-step flow
- * across `/admin/curricula/{id}/versions`, its course entries and their
- * modules, with publish and retire transitions on top; building an editor for
- * a shape nothing has ever returned would be building against a guess.
+ * It used to show `GET /admin/courses/{id}/curriculum` with no year group — a
+ * subject picker above one document, captioned "Level: not scoped to one". It
+ * therefore said, on every visit, that Mathematics has A curriculum. It does
+ * not: 3A and 3C are taught the same subject at different paces and each has
+ * its own, which is what `offering_curricula` records. A screen asserting the
+ * opposite was the conflicting concept, so it is gone.
  *
- * So this screen shows what the API actually knows and says plainly what is
- * missing. `editable` is the server's own answer about whether this reader
- * could change it, and it is surfaced rather than assumed.
+ * The programme chain it read — curriculum → version → required subject — is
+ * untouched and still serves what a PROGRAMME requires of a cohort. That is a
+ * different question from what 3A is being taught this term, and it is asked
+ * from the programme, not from here.
+ *
+ * ── A cross-subject index, because the per-subject view already exists ─────
+ *
+ * A subject's own page shows its classes and their curricula. This is the view
+ * across all of them: the four filters answer "which classes have nothing for
+ * next term", which is the question that is asked once a term and has no home
+ * on any single subject's page.
+ *
+ * ── Every row names a class ───────────────────────────────────────────────
+ *
+ * There is no row here that is about a subject alone, because there is no such
+ * document.
  */
+
+const STATUSES: { value: CurriculumStatus | ''; label: string }[] = [
+  { value: '', label: 'Any status' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'archived', label: 'Archived' },
+]
+
 export function CurriculumPage() {
   const t = useTerminology()
+  const { access } = useTenant()
+
   const [courseId, setCourseId] = useState('')
+  const [groupId, setGroupId] = useState('')
+  const [sessionId, setSessionId] = useState(access?.calendar?.session?.id ?? '')
+  const [periodId, setPeriodId] = useState('')
+  const [status, setStatus] = useState<CurriculumStatus | ''>('')
+  const [page, setPage] = useState(1)
 
-  const courses = useQuery({
-    queryKey: academicsKeys.courses.list({ per_page: PER_PAGE_DEFAULT }),
-    queryFn: () => coursesApi.list({ per_page: PER_PAGE_DEFAULT }),
+  const courses = useCourseCatalog()
+  const groups = useGroupCatalog()
+  const sessions = useSessionCatalog()
+  const periods = usePeriodCatalog()
+
+  const filters = {
+    course_id: courseId || undefined,
+    learning_group_id: groupId || undefined,
+    academic_session_id: sessionId || undefined,
+    academic_period_id: periodId || undefined,
+    status: status || undefined,
+    page,
+    per_page: PER_PAGE_DEFAULT,
+  }
+
+  const query = useQuery({
+    queryKey: curriculumKeys.list(filters),
+    queryFn: () => curriculumApi.list(filters),
+    placeholderData: (previous) => previous,
   })
 
-  const rows = courses.data?.rows ?? []
-  const selectedId = courseId || rows[0]?.id || ''
+  const anyFilter = Boolean(courseId || groupId || sessionId || periodId || status)
 
-  const curriculum = useQuery({
-    queryKey: academicsKeys.courses.curriculum(selectedId),
-    queryFn: () => coursesApi.curriculum(selectedId),
-    enabled: Boolean(selectedId),
-  })
+  const columns = useMemo<Column<OfferingCurriculum>[]>(
+    () => [
+      {
+        key: 'title',
+        header: 'Curriculum',
+        cell: (row) => (
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate font-medium">{row.title}</span>
+            <span className="truncate text-xs text-gray-600">
+              {row.course_title ?? '—'}
+              {row.course_code ? ` · ${row.course_code}` : ''}
+            </span>
+          </span>
+        ),
+      },
+      {
+        key: 'group',
+        header: t('group'),
+        width: '11rem',
+        cell: (row) => (
+          <span className="text-gray-700">{row.learning_group_name ?? '—'}</span>
+        ),
+      },
+      {
+        key: 'when',
+        header: t('period'),
+        width: '11rem',
+        cell: (row) => (
+          <span className="flex flex-col text-gray-700">
+            <span>{row.academic_period_name ?? '—'}</span>
+            <span className="text-xs text-gray-600">{row.academic_session_name ?? ''}</span>
+          </span>
+        ),
+      },
+      {
+        key: 'version',
+        header: 'Version',
+        width: '6rem',
+        cell: (row) => <span className="tabular text-gray-700">{row.version}</span>,
+      },
+      {
+        key: 'units',
+        header: 'Units',
+        numeric: true,
+        width: '5.5rem',
+        cell: (row) => formatNumber(row.module_count ?? 0),
+      },
+      {
+        key: 'status',
+        header: 'Status',
+        width: '9rem',
+        cell: (row) => (
+          <span className="flex flex-col gap-0.5">
+            <CurriculumStatusBadge status={row.status} />
+            {row.published_at && (
+              <span className="text-2xs text-gray-500">{formatDateTime(row.published_at)}</span>
+            )}
+          </span>
+        ),
+      },
+    ],
+    [t],
+  )
 
   return (
     <PageStack>
-      <PageHeader title="Curriculum" />
+      <PageHeader
+        title="Curriculum"
+        description={`What each ${t('group').toLowerCase()} is taught, subject by subject. Every scheme of work belongs to one ${t('group').toLowerCase()} — open a ${t('course').toLowerCase()} to write one.`}
+      />
 
-      {courses.isError ? (
-        <ErrorState error={courses.error} onRetry={() => courses.refetch()} />
-      ) : rows.length === 0 && !courses.isLoading ? (
-        <Card>
-          <EmptyState
-            icon={<BookOpen size={20} />}
-            title={`No ${t('courses').toLowerCase()} yet`}
-            description={`A curriculum hangs off a ${t('course').toLowerCase()}. Add one first.`}
-          />
-        </Card>
+      <Toolbar
+        filters={
+          <>
+            <FilterSelect
+              value={courseId}
+              onChange={(value) => {
+                setCourseId(value)
+                setPage(1)
+              }}
+              options={courses.options}
+              allLabel={`All ${t('courses').toLowerCase()}`}
+              disabled={courses.isLoading}
+            />
+            <FilterSelect
+              value={groupId}
+              onChange={(value) => {
+                setGroupId(value)
+                setPage(1)
+              }}
+              options={groups.options}
+              allLabel={`All ${t('groups').toLowerCase()}`}
+              disabled={groups.isLoading}
+            />
+            <FilterSelect
+              value={sessionId}
+              onChange={(value) => {
+                setSessionId(value)
+                setPage(1)
+              }}
+              options={sessions.options}
+              allLabel={`All ${t('sessions').toLowerCase()}`}
+              disabled={sessions.isLoading}
+              className="w-40"
+            />
+            <FilterSelect
+              value={periodId}
+              onChange={(value) => {
+                setPeriodId(value)
+                setPage(1)
+              }}
+              options={periods.options}
+              allLabel={`All ${t('periods').toLowerCase()}`}
+              disabled={periods.isLoading}
+              className="w-40"
+            />
+            <FilterSelect
+              value={status}
+              onChange={(value) => {
+                setStatus(value as CurriculumStatus | '')
+                setPage(1)
+              }}
+              options={STATUSES.filter((option) => option.value !== '').map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+              allLabel="Any status"
+              className="w-36"
+            />
+          </>
+        }
+      />
+
+      {query.isError ? (
+        <ErrorState error={query.error} onRetry={() => query.refetch()} />
       ) : (
         <>
-          <div className="w-72">
-            <Select
-              aria-label={`Choose a ${t('course').toLowerCase()}`}
-              value={selectedId}
-              onChange={(event) => setCourseId(event.target.value)}
-              disabled={courses.isLoading}
-              options={rows.map((row) => ({
-                value: row.id,
-                label: `${row.title} · ${row.code}`,
-              }))}
-            />
-          </div>
-
-          {curriculum.isError ? (
-            <ErrorState error={curriculum.error} onRetry={() => curriculum.refetch()} />
-          ) : curriculum.isLoading ? (
-            <Card>
-              <div className="flex flex-col gap-3 p-4">
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-3 w-full" />
-                <Skeleton className="h-3 w-2/3" />
-              </div>
-            </Card>
-          ) : curriculum.data ? (
-            <Card>
-              <CardHeader
-                title={curriculum.data.subject.title}
-                subtitle={curriculum.data.subject.code}
-                actions={
-                  curriculum.data.version ? (
-                    <Badge tone="accent">
-                      {curriculum.data.version.status ?? 'version'}
-                    </Badge>
-                  ) : (
-                    <Badge>No version</Badge>
-                  )
-                }
-              />
-
-              <Facts>
-                <Fact label={t('level')}>{curriculum.data.level?.name ?? 'Not scoped to one'}</Fact>
-                <Fact label="Modules">{curriculum.data.modules.length}</Fact>
-                <Fact label="Editable here">
-                  {curriculum.data.editable ? 'Yes' : 'No'}
-                </Fact>
-              </Facts>
-
-              {curriculum.data.modules.length === 0 && (
-                <div className="border-t border-gray-200">
-                  <EmptyState
-                    icon={<BookOpen size={20} />}
-                    title="No scheme of work yet"
-                    description={`No curriculum version has been published for ${curriculum.data.subject.title}. Until one exists there is nothing for a teacher's plan or a report card comment to point at.`}
-                  />
-                </div>
-              )}
-
-              {curriculum.data.modules.length > 0 && (
-                <ol className="divide-y divide-gray-200 border-t border-gray-200">
-                  {curriculum.data.modules.map((module) => (
-                    <li key={module.id} className="flex gap-3 px-4 py-3">
-                      <span className="tabular w-6 shrink-0 text-sm text-gray-500">
-                        {module.sequence}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900">{module.title}</p>
-                        {module.description && (
-                          <p className="mt-0.5 text-xs text-gray-600">{module.description}</p>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </Card>
-          ) : null}
+          <DataTable
+            rows={query.data?.rows ?? []}
+            columns={columns}
+            rowKey={(row) => row.id}
+            /* The subject in the path, because the editor's back link goes to
+             * the subject workspace and a curriculum has no address that does
+             * not name the subject it belongs to. */
+            rowHref={(row) =>
+              row.course_id ? `/courses/${row.course_id}/curriculum/${row.id}` : ''
+            }
+            loading={query.isLoading}
+            skeletonRows={6}
+            empty={
+              anyFilter ? (
+                <EmptyState
+                  icon={<ListChecks size={20} />}
+                  title="Nothing matches"
+                  description="No scheme of work matches these filters."
+                  action={
+                    <Button
+                      onClick={() => {
+                        setCourseId('')
+                        setGroupId('')
+                        setSessionId('')
+                        setPeriodId('')
+                        setStatus('')
+                        setPage(1)
+                      }}
+                    >
+                      Clear filters
+                    </Button>
+                  }
+                />
+              ) : (
+                <EmptyState
+                  icon={<ListChecks size={20} />}
+                  title="No schemes of work yet"
+                  description={`A curriculum is written for one ${t('group').toLowerCase()} taking one ${t('course').toLowerCase()}. Open a ${t('course').toLowerCase()} and start one from the ${t('group').toLowerCase()} that needs it.`}
+                />
+              )
+            }
+          />
+          {query.data && <Pagination pagination={query.data.pagination} onPageChange={setPage} />}
         </>
       )}
     </PageStack>

@@ -20,7 +20,6 @@ import {
   PanelLink,
   PanelRow,
   PanelState,
-  QuickLinks,
   TileRow,
   tileFigure,
   TimetableToday,
@@ -42,7 +41,7 @@ import {
  * scope alone would hand a form tutor every offering on their campus.
  */
 export function TeacherDashboard() {
-  const { access, membership } = useTenant()
+  const { membership } = useTenant()
   const perms = usePermissions()
   const t = useTerminology()
   const title = useGreetingTitle()
@@ -273,7 +272,6 @@ export function TeacherDashboard() {
         )}
       </PanelRow>
 
-      {access && <QuickLinks items={access.navigation.quick_actions} />}
     </PageStack>
   )
 }

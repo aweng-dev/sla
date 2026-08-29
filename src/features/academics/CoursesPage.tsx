@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Archive, PencilSimple, Plus } from '@phosphor-icons/react'
+import { Archive, ArrowSquareOut, PencilSimple, Plus } from '@phosphor-icons/react'
 import { PER_PAGE_DEFAULT } from '@/shared/api/client'
 import { formatNumber, humanize } from '@/shared/lib/format'
 import { PageStack } from '@/shared/layout/AppShell'
@@ -78,6 +79,7 @@ export function CoursesPage() {
   const t = useTerminology()
   const perms = usePermissions()
   const { access } = useTenant()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const [draft, setDraft] = useState('')
@@ -170,6 +172,8 @@ export function CoursesPage() {
       {
         key: 'title',
         header: t('course'),
+        /* Plain text: `rowHref` below renders the first column inside a real
+         * anchor, and a link nested in a link is neither. */
         cell: (row) => <span className="font-medium">{row.title}</span>,
       },
       {
@@ -224,6 +228,13 @@ export function CoursesPage() {
         (row) => {
           if (!canManage || !row.can_manage) return []
           const items: MenuItemSpec[] = [
+            {
+              key: 'open',
+              label: 'Open',
+              icon: <ArrowSquareOut size={15} />,
+              onSelect: () =>
+                void navigate({ to: '/courses/$courseId', params: { courseId: row.id } }),
+            },
             { key: 'edit', label: 'Edit', icon: <PencilSimple size={15} />, onSelect: () => open(row) },
           ]
           if (row.status !== 'archived') {
@@ -246,7 +257,7 @@ export function CoursesPage() {
 
     return base
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t, canManage, showCredits])
+  }, [t, canManage, showCredits, navigate])
 
   return (
     <PageStack>
@@ -286,6 +297,11 @@ export function CoursesPage() {
             rows={rows}
             columns={columns}
             rowKey={(row) => row.id}
+            /* The way into the subject — where the classes taking it and the
+             * curriculum each of them has actually live. `rowHref` rather than
+             * a click handler so the row can be middle-clicked, opened in a new
+             * tab and reached from the keyboard. */
+            rowHref={(row) => `/courses/${row.id}`}
             loading={query.isLoading}
             skeletonRows={5}
             empty={

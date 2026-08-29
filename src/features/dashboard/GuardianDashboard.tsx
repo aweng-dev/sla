@@ -26,7 +26,6 @@ import {
   ModuleLink,
   PanelLink,
   PanelState,
-  QuickLinks,
   RowsSkeleton,
   TileRow,
   tileFigure,
@@ -48,7 +47,7 @@ import {
  * relying on a default.
  */
 export function GuardianDashboard() {
-  const { access, tenant } = useTenant()
+  const { tenant } = useTenant()
   const perms = usePermissions()
   const t = useTerminology()
   const title = useGreetingTitle()
@@ -248,7 +247,6 @@ export function GuardianDashboard() {
         </CardBody>
       </Card>
 
-      {access && <QuickLinks items={access.navigation.quick_actions} />}
     </PageStack>
   )
 }

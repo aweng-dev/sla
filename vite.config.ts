@@ -46,6 +46,21 @@ export default defineConfig({
            * code leaves this one in the browser cache. */
           if (id.includes('@phosphor-icons')) return 'icons'
 
+          /* The rich-text editor. ONE screen in the product opens a document,
+           * and swept into `vendor` by the catch-all below it is downloaded by
+           * everybody who signs in — 600 kB for a page most readers never
+           * open.
+           *
+           * `undefined` rather than a name of its own: naming it makes the
+           * split circular (`vendor -> editor -> vendor`), because BlockNote
+           * and the rest of `vendor` share modules in both directions, and a
+           * circular chunk pair is an initialisation-order bug waiting for a
+           * page load. Handing it back to Rollup lets it work the graph out —
+           * and it does, because the only importer is a lazily loaded route,
+           * so the result is a chunk nobody downloads until they open a
+           * curriculum. */
+          if (id.includes('@blocknote')) return undefined
+
           return 'vendor'
         },
       },

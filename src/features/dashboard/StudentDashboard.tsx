@@ -20,7 +20,7 @@ import {
   formatNumber,
   formatPercent,
 } from '@/shared/lib/format'
-import { usePermissions, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
+import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
 import { dashboardApi } from './dashboard.api'
 import { sessionWideAttendance } from './dashboard.types'
 import type { PortalBalance, PortalRecord } from './dashboard.types'
@@ -31,7 +31,6 @@ import {
   PanelLink,
   PanelRow,
   PanelState,
-  QuickLinks,
   RowsSkeleton,
   TileRow,
   tileFigure,
@@ -54,7 +53,6 @@ import {
  * than showing a spinner that never resolves or an error that is not one.
  */
 export function StudentDashboard() {
-  const { access } = useTenant()
   const perms = usePermissions()
   const t = useTerminology()
   const title = useGreetingTitle()
@@ -382,7 +380,6 @@ export function StudentDashboard() {
         </CardBody>
       </Card>
 
-      {access && <QuickLinks items={access.navigation.quick_actions} />}
     </PageStack>
   )
 }

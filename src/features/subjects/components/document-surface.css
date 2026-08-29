@@ -1,0 +1,113 @@
+/*
+ * The editor, dressed as the rest of this app.
+ *
+ * BlockNote ships structural CSS plus a default theme built on its own custom
+ * properties. Overriding the PROPERTIES rather than the rules is what keeps
+ * this from becoming a list of `!important`s that breaks on the next release:
+ * the variables are the package's public surface, the class names are not.
+ *
+ * The one thing deliberately not inherited is the typeface. The default sheet
+ * loads its own Inter; this hands the editor `--bn-font-family: inherit` so it
+ * uses whatever the app is already using, and nothing is downloaded twice.
+ */
+
+.curriculum-surface {
+  /* Sprig's ink and hairlines, not BlockNote's greys. */
+  --bn-colors-editor-text: theme('colors.gray.900');
+  --bn-colors-editor-background: transparent;
+  --bn-colors-side-menu: theme('colors.gray.400');
+  --bn-colors-border: theme('colors.gray.200');
+  --bn-colors-hovered-background: theme('colors.gray.100');
+  --bn-colors-hovered-text: theme('colors.gray.900');
+  --bn-colors-selected-background: theme('colors.accent.500');
+  --bn-colors-selected-text: #ffffff;
+  --bn-colors-disabled-background: theme('colors.gray.100');
+  --bn-colors-disabled-text: theme('colors.gray.500');
+  --bn-colors-menu-background: #ffffff;
+  --bn-colors-menu-text: theme('colors.gray.900');
+  --bn-colors-tooltip-background: theme('colors.gray.900');
+  --bn-colors-tooltip-text: #ffffff;
+  --bn-font-family: inherit;
+  --bn-border-radius: 0.5rem;
+}
+
+/* The editor supplies its own generous page padding, which is right for a
+ * full-bleed Notion page and wrong inside a panel that already has one. */
+.curriculum-surface .bn-editor {
+  padding-inline: 0;
+  padding-block: 0.5rem 4rem;
+}
+
+/* Room for the drag handle and the "+" that appear in the left gutter on
+ * hover. Without it they sit on top of the first character. */
+.curriculum-surface .bn-block-outer {
+  padding-inline-start: 0;
+}
+
+.curriculum-surface .ProseMirror {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  outline: none;
+}
+
+/* Headings: the document's own scale, a size below the page header so a unit
+ * title never competes with the name of the document it is in. */
+.curriculum-surface h1 {
+  font-size: 1.375rem;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+}
+
+.curriculum-surface h2 {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.curriculum-surface h3 {
+  font-size: 1rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.curriculum-surface a {
+  color: theme('colors.accent.600');
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.curriculum-surface blockquote,
+.curriculum-surface .bn-block-content[data-content-type='quote'] {
+  border-inline-start: 2px solid theme('colors.gray.300');
+  padding-inline-start: 0.875rem;
+  color: theme('colors.gray.700');
+}
+
+.curriculum-surface table {
+  font-size: 0.875rem;
+}
+
+.curriculum-surface th,
+.curriculum-surface td {
+  border-color: theme('colors.gray.200');
+}
+
+/*
+ * Read-only.
+ *
+ * A published curriculum is frozen by a database trigger, so the surface has
+ * to look unwritable as well as be unwritable — a caret blinking in text that
+ * silently refuses edits is worse than no caret. The gutter controls go with
+ * it: a drag handle that cannot drag is a broken control, not a disabled one.
+ */
+.curriculum-surface.is-readonly .ProseMirror {
+  caret-color: transparent;
+  cursor: default;
+}
+
+.curriculum-surface.is-readonly .bn-side-menu,
+.curriculum-surface.is-readonly .bn-drag-handle,
+.curriculum-surface.is-readonly .bn-block-add-button {
+  display: none;
+}

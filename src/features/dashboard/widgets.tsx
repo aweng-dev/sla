@@ -2,10 +2,8 @@ import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from '@phosphor-icons/react'
 import { Card, CardBody, CardHeader, EmptyState, ErrorState, MetaDot, Skeleton } from '@/shared/ui'
-import { ModuleIcon } from '@/shared/icons/moduleIcons'
 import { cn } from '@/shared/lib/cn'
 import { useTenant, useTerminology } from '@/features/tenant/TenantProvider'
-import type { NavigationItem } from '@/shared/types/navigation.types'
 import type { TimetableSlot, TimetableView } from './dashboard.types'
 import { firstName, greeting, slotTime, todayInTimeZone } from './dashboard.lib'
 
@@ -296,44 +294,6 @@ export function ModuleLink({
     <Link to="/$module" params={{ module: route }} className={className}>
       {children}
     </Link>
-  )
-}
-
-/**
- * The things this person does most.
- *
- * Built from `access.navigation.quick_actions`, which the API derives from the
- * modules they actually hold — so a bursar and a form tutor get different
- * tiles from the same component, and an institution that switches a module off
- * loses its tile without a deploy.
- */
-export function QuickLinks({ items }: { items: NavigationItem[] }) {
-  const actions = items.filter((item) => item.route !== null)
-  if (actions.length === 0) return null
-
-  return (
-    <Card>
-      <CardHeader title="Jump to" />
-      {/* One line per destination, as Sprig lists its Resources — a bordered
-          cell per link with a tinted glyph in it turns six shortcuts into six
-          objects competing with the panels above them. */}
-      <CardBody className="grid grid-cols-2 gap-x-4 gap-y-0.5 p-2 sm:grid-cols-3 xl:grid-cols-4">
-        {actions.map((item) => (
-          <ModuleLink
-            key={item.key}
-            route={item.route as string}
-            className="flex h-8 items-center gap-2 rounded-md px-2 text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
-          >
-            <ModuleIcon
-              name={item.icon ?? item.key}
-              size={15}
-              className="shrink-0 text-gray-500"
-            />
-            <span className="truncate text-sm font-medium">{item.label}</span>
-          </ModuleLink>
-        ))}
-      </CardBody>
-    </Card>
   )
 }
 

@@ -385,15 +385,25 @@ export const CURRICULUM_VERSION_STATUSES = ['draft', 'published', 'retired'] as 
 export type CurriculumVersionStatus = (typeof CURRICULUM_VERSION_STATUSES)[number]
 
 /**
- * `GET /admin/courses/{course}/curriculum` — the scheme of work for one
- * subject, or the empty shell when none exists yet.
+ * `GET /admin/courses/{course}/curriculum?academic_level_id=` — what a
+ * PROGRAMME requires of one subject at one year group.
+ *
+ * ── Not "the subject's curriculum" ─────────────────────────────────────────
+ *
+ * It resolves a four-deep chain — curriculum → version → requirement row →
+ * scheme of work — for a subject AND a level, and it is a regulatory record: a
+ * cohort is pinned to a version and what a student owes must not move under
+ * them. Called without a level it answers "not scoped to one", which is how
+ * this once got read as a single curriculum belonging to a subject.
+ *
+ * What a CLASS is actually taught is `OfferingCurriculum` in
+ * `features/subjects/curriculum.api.ts` — one document per class, per term.
+ * Two classes taking this subject have two of those, and neither is this.
  *
  * `editable` is the server's answer about whether this reader may change it,
- * and `version` is null until somebody creates one. Both are null/false for
- * every subject in a fresh institution, so the screen's main job is the empty
- * state rather than the editor.
+ * and `version` is null until somebody creates one.
  */
-export interface SubjectCurriculum {
+export interface ProgrammeRequirement {
   subject: { id: string; title: string; code: string }
   level: { id: string; name: string } | null
   address: string | null

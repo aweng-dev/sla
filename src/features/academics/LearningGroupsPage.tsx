@@ -321,12 +321,16 @@ export function LearningGroupsPage() {
         <ErrorState error={query.error} onRetry={() => query.refetch()} />
       ) : (
         <>
+          {/* `rowHref` puts a real anchor on the first column, so a class can
+            * be middle-clicked, opened in a tab and read by a screen reader as
+            * the link it is — see DataTable's own note. */}
           <DataTable
             rows={rows}
             columns={columns}
             rowKey={(row) => row.id}
             loading={query.isLoading}
             skeletonRows={5}
+            rowHref={(row) => `/learning-groups/${row.id}`}
             empty={
               filtered ? (
                 <EmptyState

@@ -16,7 +16,7 @@ import type {
   OfferingInstructor,
   Program,
   SessionEnrollment,
-  SubjectCurriculum,
+  ProgrammeRequirement,
 } from './academics.types'
 
 /**
@@ -313,11 +313,26 @@ export const coursesApi = {
 
   archive: (id: string) => post<Course>(`/admin/courses/${id}/archive`),
 
-  /** The scheme of work for one subject. Answers a shell with `version: null`
-   *  and `editable: false` when none has been created, which is the state
-   *  every subject is in for a fresh institution. */
-  curriculum: (courseId: string) =>
-    get<SubjectCurriculum>(`/admin/courses/${courseId}/curriculum`),
+  /**
+   * The PROGRAMME requirement for this subject at one year group.
+   *
+   * Renamed from `curriculum`, which read as "the subject's curriculum" — the
+   * one thing this is not. It resolves the four-deep programme chain
+   * (curriculum → version → requirement row → scheme of work) for a subject AND
+   * an academic level, and it is what a programme requires of a cohort.
+   *
+   * What a CLASS is actually taught is a different record with a different
+   * lifetime: `features/subjects/curriculum.api.ts`, one document per class per
+   * term. Two classes taking this subject have two of those and share none of
+   * this.
+   *
+   * `levelId` is not optional. Called without one the endpoint answers "not
+   * scoped to one", which is exactly the misreading the rename exists to stop.
+   */
+  programmeRequirement: (courseId: string, levelId: string) =>
+    get<ProgrammeRequirement>(`/admin/courses/${courseId}/curriculum`, {
+      params: { academic_level_id: levelId },
+    }),
 }
 
 /* ── Learning groups ────────────────────────────────────────────────────── */
@@ -355,9 +370,21 @@ export const learningGroupsApi = {
       params: params(query),
     }),
 
-  addMembers: (id: string, studentIds: string[]) =>
-    post<LearningGroupMember[]>(`/admin/learning-groups/${id}/members`, {
-      student_ids: studentIds,
+  /**
+   * Put one learner on the roll.
+   *
+   * The endpoint takes ONE `student_id`, not a list — it runs
+   * `MoveLearnerToGroup`, which takes them off whatever class they were in and
+   * records the move. This used to post `student_ids: []`, which the request
+   * refused as a missing `student_id`; nothing called it, so nothing broke.
+   *
+   * `effective_on` dates the move. Absent means now, which is what a registrar
+   * adding somebody in front of them means.
+   */
+  addMember: (id: string, studentId: string, effectiveOn?: string) =>
+    post<LearningGroupMember>(`/admin/learning-groups/${id}/members`, {
+      student_id: studentId,
+      effective_on: effectiveOn,
     }),
 
   removeMember: (id: string, studentId: string) =>

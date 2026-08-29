@@ -16,7 +16,7 @@ import { PageStack } from '@/shared/layout/AppShell'
 import { qk } from '@/shared/api/queryKeys'
 import { CATEGORICAL, CHART } from '@/shared/theme/chartColors'
 import { formatMoney, formatNumber, formatPercent, humanize } from '@/shared/lib/format'
-import { usePermissions, useTenant, useTerminology } from '@/features/tenant/TenantProvider'
+import { usePermissions, useTerminology } from '@/features/tenant/TenantProvider'
 import type { TerminologyKey } from '@/shared/types/tenant.types'
 import { dashboardApi } from './dashboard.api'
 import type { CollectionSummary } from './dashboard.types'
@@ -30,7 +30,6 @@ import {
   PanelLink,
   PanelRow,
   PanelState,
-  QuickLinks,
   RowsSkeleton,
   TileRow,
   tileFigure,
@@ -52,7 +51,6 @@ const COLLECTION_MONTHS = 11
  * error and empty states so a finance outage does not blank the roll.
  */
 export function AdminDashboard() {
-  const { access } = useTenant()
   const perms = usePermissions()
   const t = useTerminology()
   const title = useGreetingTitle()
@@ -199,7 +197,6 @@ export function AdminDashboard() {
         </Card>
       )}
 
-      {access && <QuickLinks items={access.navigation.quick_actions} />}
     </PageStack>
   )
 }
