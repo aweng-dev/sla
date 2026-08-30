@@ -69,12 +69,12 @@ export function PageHeader({
          * edge to edge across the canvas while the title sits on the same
          * gutter as everything below it. */
         '-mx-4 border-b border-gray-200 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
-        entity ? 'pt-4' : display ? 'pt-6' : 'pt-5',
+        entity ? 'pt-4' : display ? 'pt-4 sm:pt-6' : 'pt-4 sm:pt-5',
         tabs ? 'pb-0' : entity ? 'pb-3.5' : 'pb-4',
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-start gap-3">
           {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
           <div className="min-w-0">
@@ -85,7 +85,7 @@ export function PageHeader({
             )}
             <h1
               className={cn(
-                'truncate text-gray-900',
+                'min-w-0 break-words text-gray-900 [overflow-wrap:anywhere] sm:truncate',
                 entity && 'text-title-sm',
                 display && 'text-display',
                 !entity && !display && 'text-title',
@@ -93,7 +93,7 @@ export function PageHeader({
             >
               {title}
             </h1>
-            {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
+            {description && <p className="mt-1 max-w-3xl text-sm text-gray-600">{description}</p>}
             {meta && (
               <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-gray-600">
                 {meta}
@@ -102,7 +102,9 @@ export function PageHeader({
           </div>
         </div>
         {actions && (
-          <div className="flex shrink-0 items-center gap-2 pt-0.5">{actions}</div>
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 sm:justify-end sm:pt-0.5">
+            {actions}
+          </div>
         )}
       </div>
 

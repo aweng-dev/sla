@@ -38,10 +38,14 @@ export function CalendarMeta() {
 
   return (
     <>
-      <span>{branding.institution_name}</span>
+      <span className="hidden sm:inline">{branding.institution_name}</span>
+      {(calendar?.session || calendar?.period) && (
+        <span className="hidden text-gray-400 sm:inline" aria-hidden>
+          ·
+        </span>
+      )}
       {calendar?.session && (
         <>
-          <MetaDot />
           <span>
             {t('session')} {calendar.session.name}
           </span>
@@ -62,7 +66,14 @@ export function CalendarMeta() {
 /** The row of figures every one of the four dashboards opens with. Four across
  *  on a desktop, two on a tablet, one on a phone. */
 export function TileRow({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{children}</div>
+  return (
+    <div
+      className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-2 xl:grid-cols-4 [&>*]:rounded-none [&>*]:border-0"
+      aria-label="At a glance"
+    >
+      {children}
+    </div>
+  )
 }
 
 /** Two panels side by side, stacking below `lg`. */

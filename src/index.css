@@ -23,6 +23,7 @@
   html {
     -webkit-text-size-adjust: 100%;
     font-variation-settings: normal;
+    overflow-x: clip;
   }
 
   body {
@@ -30,6 +31,7 @@
     font-family: 'Figtree', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: var(--sl-text-body);
     line-height: var(--sl-text-body-leading);
+    overflow-x: clip;
   }
 
   /* One focus treatment for the whole product, and it is the accent — never
@@ -76,5 +78,16 @@
   /* The hairline that does all the separating in this product. */
   .hairline {
     @apply border-sl-border;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }

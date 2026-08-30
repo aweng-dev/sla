@@ -10,6 +10,7 @@ import {
   Gear,
   SignOut,
   UserCircle,
+  X,
 } from '@phosphor-icons/react'
 import { cn } from '@/shared/lib/cn'
 import { ModuleIcon } from '@/shared/icons/moduleIcons'
@@ -67,9 +68,10 @@ import { SETTINGS_OWNED_MODULES } from '@/features/settings/sections'
  * says Classes to a school, Cohorts to a university and Cohorts to a training
  * provider, from one build.
  */
-export function Sidebar() {
+export function Sidebar({ mobile = false }: { mobile?: boolean }) {
   const { access, tenant, account, membership } = useTenant()
-  const collapsed = useUiStore((s) => s.railCollapsed)
+  const storedCollapsed = useUiStore((s) => s.railCollapsed)
+  const collapsed = mobile ? false : storedCollapsed
   const toggleRail = useUiStore((s) => s.toggleRail)
   const setMobileNavOpen = useUiStore((s) => s.setMobileNavOpen)
   const signOut = useSignOut()
@@ -130,8 +132,8 @@ export function Sidebar() {
     <nav
       aria-label="Main"
       className={cn(
-        'relative flex h-dvh shrink-0 flex-col border-r border-gray-200 bg-rail transition-[width] duration-200',
-        collapsed ? 'w-rail-collapsed' : 'w-rail',
+        'relative flex h-dvh shrink-0 flex-col border-r border-gray-200 bg-rail',
+        mobile || !collapsed ? 'w-rail' : 'w-rail-collapsed',
       )}
     >
       {/* ── Wordmark ──────────────────────────────────────────────────── */}
@@ -169,7 +171,17 @@ export function Sidebar() {
             </span>
           )}
         </Link>
-        {!collapsed && (
+        {!collapsed && mobile && (
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Close navigation"
+            className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 lg:hidden"
+          >
+            <X size={19} weight="bold" />
+          </button>
+        )}
+        {!collapsed && !mobile && (
           <RailToggle collapsed={collapsed} onToggle={toggleRail} className="ml-auto hidden lg:flex" />
         )}
       </div>

@@ -1,0 +1,9 @@
+{
+  "scanned_at": "2026-08-29",
+  "framework": "React 19 + Vite 6 + Tailwind CSS 3",
+  "font_stack": "Figtree, Inter, ui-sans-serif",
+  "palette": "Sprig-derived neutral canvas with violet interaction accent and yellow CTA",
+  "motion": "CSS-only, restrained",
+  "spacing": "4px-aligned Tailwind scale",
+  "preserve": ["font stack", "palette", "type scale", "8px geometry", "36px controls"]
+}
